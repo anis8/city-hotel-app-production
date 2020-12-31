@@ -72,6 +72,10 @@
     background: url('../images/in.png');
 }
 
+.buttons .button .refresh {
+    background: url('../images/refresh.png');
+}
+
 .buttons .button:hover {
     background: #00000073;
 }

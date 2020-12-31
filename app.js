@@ -33,6 +33,7 @@ switch (process.platform) {
 app.commandLine.appendSwitch("disable-renderer-backgrounding");
 app.commandLine.appendSwitch('high-dpi-support', "1");
 app.commandLine.appendSwitch('force-device-scale-factor', "1");
+app.commandLine.appendSwitch('disable-site-isolation-trials');
 
 app.commandLine.appendSwitch('ppapi-flash-path', path.join(__dirname.includes(".asar") ? process.resourcesPath : __dirname, "flash/" + pluginName));
 let sendWindow = (identifier, message) => {
@@ -54,6 +55,7 @@ let createWindow = async () => {
     mainWindow.maximize();
     mainWindow.show();
     mainWindow.setMenu(null);
+    mainWindow.webContents.openDevTools();
 
     await mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, `app.html`),
@@ -68,7 +70,6 @@ let createWindow = async () => {
         app.relaunch();
         app.exit();
     });
-
 
     ipcMain.on('fullscreen', () => {
         if (mainWindow.isFullScreen())

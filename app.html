@@ -48,6 +48,13 @@
             Plein écran
         </div>
     </div>
+    <div id="refresh" class="button">
+        <div class="icon refresh"></div>
+        <div class="tooltip">
+            <div class="arrow"></div>
+            Actualiser
+        </div>
+    </div>
     <div id="cache" class="button">
         <div class="icon cache"></div>
         <div class="tooltip">
@@ -99,6 +106,7 @@
     const zoomIn = document.getElementById("zoomIn");
     const zoomOut = document.getElementById("zoomOut");
     const screen = document.getElementById("screen");
+    const refresh = document.getElementById("refresh");
 
     zoomIn.addEventListener('click', () => {
         ipcRenderer.send("zoomIn", "");
@@ -108,6 +116,9 @@
     });
     zoomOut.addEventListener('click', () => {
         ipcRenderer.send("zoomOut", "");
+    });
+    refresh.addEventListener('click', () => {
+        document.getElementById("frame").contentWindow.location.reload();
     });
 
 
