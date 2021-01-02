@@ -131,7 +131,6 @@
             iframe.document.getElementById('hotel1').addEventListener('click', () => {
                 ipcRenderer.send("fullscreen", "");
             });
-            clearInterval(checkClient);
         }
     }
     const checkClient = setInterval(clientFullScreen, 1000);
