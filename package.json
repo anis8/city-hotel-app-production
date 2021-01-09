@@ -10,8 +10,8 @@
   },
   "scripts": {
     "start": "electron .",
-    "publish": "electron-builder --linux -p always",
-    "build": "electron-builder --linux"
+    "publish": "electron-builder --win -p always",
+    "build": "electron-builder --win"
   },
   "devDependencies": {
     "dotenv": "^8.2.0",
@@ -51,8 +51,8 @@
       ]
     },
     "nsis": {
-      "installerIcon": "icon.ico",
-      "uninstallerIcon": "icon.ico",
+      "installerIcon": "icon.png",
+      "uninstallerIcon": "icon.png",
       "uninstallDisplayName": "City",
       "oneClick": true,
       "perMachine": false,
