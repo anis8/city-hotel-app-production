@@ -8,6 +8,7 @@ let pluginName;
 let pluginVersion;
 let mainWindow;
 
+
 switch (process.platform) {
     case 'win32':
         if (process.arch === "x32" || process.arch === "ia32") {
