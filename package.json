@@ -51,8 +51,8 @@
       ]
     },
     "nsis": {
-      "installerIcon": "icon.png",
-      "uninstallerIcon": "icon.png",
+      "installerIcon": "icon.ico",
+      "uninstallerIcon": "icon.ico",
       "uninstallDisplayName": "City",
       "oneClick": true,
       "perMachine": false,
