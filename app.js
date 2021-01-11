@@ -1,4 +1,4 @@
-const {app, BrowserWindow, ipcMain} = require('electron');
+const {app, nativeImage, BrowserWindow, ipcMain} = require('electron');
 const {autoUpdater} = require("electron-updater");
 
 const path = require('path');
@@ -34,8 +34,10 @@ switch (process.platform) {
         break;
 }
 app.commandLine.appendSwitch("disable-renderer-backgrounding");
-app.commandLine.appendSwitch('high-dpi-support', "1");
-app.commandLine.appendSwitch('force-device-scale-factor', "1");
+if (process.platform !== "darwin") {
+    app.commandLine.appendSwitch('high-dpi-support', "1");
+    app.commandLine.appendSwitch('force-device-scale-factor', "1");
+}
 app.commandLine.appendSwitch('ppapi-flash-path', path.join(__dirname.includes(".asar") ? process.resourcesPath : __dirname, "flash/" + pluginName));
 app.commandLine.appendSwitch('disable-site-isolation-trials');
 app.commandLine.appendSwitch('no-sandbox');
@@ -51,7 +53,9 @@ let createWindow = async () => {
         webPreferences: {
             plugins: true,
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: false,
+            webviewTag: true,
+            webSecurity: false
         },
         show: false,
         frame: true,
@@ -60,6 +64,20 @@ let createWindow = async () => {
     mainWindow.maximize();
     mainWindow.show();
     mainWindow.setMenu(null);
+
+    if (process.platform === "darwin") {
+        mainWindow.on('close', (event) => {
+            if (app.quitting) {
+                mainWindow = null
+            } else {
+                event.preventDefault()
+                mainWindow.hide()
+            }
+        });
+        app.dock.setIcon(nativeImage.createFromPath(
+            path.join(__dirname, '/icon.png')
+        ));
+    }
 
     await mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, `app.html`),
@@ -108,6 +126,7 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 });
+app.on('before-quit', () => app.quitting = true);
 app.on('activate', async () => {
     if (mainWindow === null) {
         await createWindow();

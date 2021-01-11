@@ -89,17 +89,14 @@
     ipcRenderer.on("version", (event, data) => {
         version.innerHTML = data;
     });
-
     ipcRenderer.on("checking-for-update", (event, data) => {
         progression.innerHTML = "mise à jour...";
         updater.style.display = "block";
     });
-
     ipcRenderer.on("update-not-available", (event, data) => {
         updater.style.display = "none";
         updater.innerHTML = "";
     });
-
     ipcRenderer.on("download-progress", (event, data) => {
         progression.innerHTML = Math.round(data['percent']) + "%";
     });
