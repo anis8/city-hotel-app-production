@@ -28,8 +28,8 @@ switch (process.platform) {
             pluginName = 'libpepflashplayer_arm.so';
             pluginVersion = '11.5.31.105';
         } else {
-            pluginName = 'libpepflashplayer.so';
-            pluginVersion = '32.0.0.465';
+            pluginName = 'libpepflashplayer_linux.so';
+            pluginVersion = '32.0.0.207';
         }
         break;
     case "freebsd":
