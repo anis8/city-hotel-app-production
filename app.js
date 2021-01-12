@@ -24,7 +24,7 @@ switch (process.platform) {
         pluginVersion = '32.0.0.207';
         break;
     case "linux":
-        if (proccess.arch === "arm") {
+        if (process.arch === "arm") {
             pluginName = 'libpepflashplayer_arm.so';
             pluginVersion = '11.5.31.105';
         } else {
