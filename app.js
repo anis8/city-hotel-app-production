@@ -11,8 +11,8 @@ let mainWindow;
 switch (process.platform) {
     case 'win32':
         if (process.arch === "x32" || process.arch === "ia32") {
-            pluginName = 'pepflashplayer-32.dll';
-            pluginVersion = '32.0.0.465';
+            pluginName = 'pepflashplayer-32-new.dll';
+            pluginVersion = '32.0.0.363';
         } else {
             pluginName = 'pepflashplayer.dll';
             pluginVersion = '20.0.0.306';
