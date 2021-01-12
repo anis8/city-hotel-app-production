@@ -24,8 +24,13 @@ switch (process.platform) {
         pluginVersion = '32.0.0.207';
         break;
     case "linux":
-        pluginName = 'libpepflashplayer.so';
-        pluginVersion = '32.0.0.465';
+        if (proccess.arch === "arm") {
+            pluginName = 'libpepflashplayer_arm.so';
+            pluginVersion = '11.5.31.105';
+        } else {
+            pluginName = 'libpepflashplayer.so';
+            pluginVersion = '32.0.0.465';
+        }
         break;
     case "freebsd":
     case "netbsd":
