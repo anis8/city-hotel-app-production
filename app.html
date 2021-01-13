@@ -109,6 +109,7 @@
     const reload = document.getElementById("reload");
     const close = document.getElementById("close");
     let isOpenButtons = true;
+    let checkClient = setInterval(clientFullScreen, 1000);
 
     zoomIn.addEventListener('click', () => {
         ipcRenderer.send("zoomIn", "");
@@ -121,6 +122,7 @@
     });
     reload.addEventListener('click', () => {
         iframe.location.reload();
+        checkClient = setInterval(clientFullScreen, 1000);
     });
 
     function clientFullScreen() {
@@ -131,7 +133,6 @@
             clearInterval(checkClient);
         }
     }
-    const checkClient = setInterval(clientFullScreen, 1000);
 
     close.addEventListener('click', () => {
         if (!isOpenButtons) {
@@ -148,19 +149,76 @@
     const alert = document.getElementById("alert");
     const cancel = document.getElementById("cancel");
     const confirm = document.getElementById("confirm");
+    const titlea = document.getElementById("title");
     const description = document.getElementById("description");
-    cancel.onclick = () => {
+    const forma = document.getElementById('form');
+    const inputa = document.getElementById('input');
+
+    cancel.addEventListener('click', () => {
+        closeAlert();
+    });
+    confirm.addEventListener('click', () => {
+        closeAlert();
+    })
+
+    function openAlert(title, descr, input = undefined, ipc = undefined) {
+        alert.style.visibility = "visible";
+        titlea.innerText = title;
+        description.innerText = descr;
+
+        if (input) {
+            inputa.style.visibility = "visible";
+        } else {
+            inputa.style.visibility = "hidden";
+        }
+
+        if (ipc) {
+            confirm.setAttribute('onClick', 'ipcRenderer.send("' + ipc + '", "");\n');
+        }
+    }
+
+    function closeAlert() {
         alert.style.visibility = "hidden";
-    };
+        inputa.style.visibility = "hidden";
+        inputa.value = '';
+    }
 
     const cache = document.getElementById("cache");
     cache.addEventListener('click', () => {
-        alert.style.visibility = "visible";
-        confirm.onclick = () => {
-            ipcRenderer.send("clearcache", "");
-        };
+        openAlert("Attention...", "Tu souhaites vider ton cache et relancer l'application.", false, "clearcache");
     });
 
+    function formSubmit(event, type) {
+        event = event || window.event;
+        event.preventDefault();
+        iframe.document.execCommand(type, false, inputa.value);
+        const selection = iframe.document.getSelection();
+        selection.anchorNode.parentElement.target = '_blank';
+        inputa.value = '';
+    }
+
+    function forumSendImage() {
+        if (iframe.location.pathname.startsWith('/forum/')) {
+            const link = iframe.document.querySelectorAll('#articlescombbcode')[3];
+            const img = iframe.document.querySelectorAll('#articlescombbcode')[4];
+            if (link && img) {
+                if(link.outerHTML !== '<button id="articlescombbcode" type="button" onclick="">Lien</button>' && img.outerHTML !== '<button id="articlescombbcode" type="button" onclick="">Image</button>') {
+                    link.setAttribute("onClick", "");
+                    img.setAttribute("onClick", "");
+                    link.addEventListener('click', () => {
+                        openAlert("Forum - Lien", "Entre le lien que tu souhaites insérer dans le champ ci-dessous.", true);
+                        forma.setAttribute("onSubmit", "formSubmit(event, 'createLink')");
+                    });
+                    img.addEventListener('click', () => {
+                        openAlert("Forum - Image", "Entre l'adresse de l'image que tu souhaites insérer dans le champ ci-dessous.", true);
+                        forma.setAttribute("onSubmit", "formSubmit(event, 'insertImage')");
+                    });
+                }
+            }
+        }
+    }
+
+    const checkForum = setInterval(forumSendImage, 1000);
 
 </script>
 </body>

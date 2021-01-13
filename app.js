@@ -116,6 +116,17 @@ let createWindow = async () => {
             mainWindow.webContents.setZoomFactor(factor + 0.01);
         }
     });
+
+    mainWindow.webContents.on('new-window', (e, url) => {
+        const splitUrl = url.replace('https://', '').split('.');
+        let checkUrl = splitUrl[0];
+        if(url.replace('https://', '').startsWith('www.') || url.replace('https://', '').startsWith('swf.')) checkUrl = splitUrl[1];
+
+        if(checkUrl !== 'habbocity') {
+            e.preventDefault();
+            require('electron').shell.openExternal(url);
+        }
+    });
 };
 
 app.on('ready', async () => {
