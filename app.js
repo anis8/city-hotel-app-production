@@ -66,18 +66,23 @@ let createWindow = async () => {
     mainWindow.setMenu(null);
 
     if (process.platform === "darwin") {
-        mainWindow.on('close', (event) => {
-            if (app.quitting) {
-                mainWindow = null
-            } else {
-                event.preventDefault()
-                mainWindow.hide()
-            }
-        });
         app.dock.setIcon(nativeImage.createFromPath(
             path.join(__dirname, '/icon.png')
         ));
     }
+
+    mainWindow.on('close', (event) => {
+        if (app.quitting) {
+            mainWindow = null
+        } else {
+            event.preventDefault()
+            mainWindow.hide()
+        }
+
+        if (process.platform !== 'darwin') {
+            app.quit();
+        }
+    });
 
     await mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, `app.html`),
