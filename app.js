@@ -5,38 +5,30 @@ const path = require('path');
 const url = require('url');
 
 let pluginName;
-let pluginVersion;
 let mainWindow;
-
 
 switch (process.platform) {
     case 'win32':
         if (process.arch === "x32" || process.arch === "ia32") {
-            pluginName = 'pepflashplayer-32-new.dll';
-            pluginVersion = '32.0.0.363';
+            pluginName = 'win/pepflashplayer-32.dll';
         } else {
-            pluginName = 'pepflashplayer.dll';
-            pluginVersion = '20.0.0.306';
+            pluginName = 'win/pepflashplayer.dll';
         }
         break;
     case 'darwin':
-        pluginName = 'PepperFlashPlayer.plugin';
-        pluginVersion = '32.0.0.207';
+        pluginName = 'mac/PepperFlashPlayer.plugin';
         break;
     case "linux":
         if (process.arch === "arm") {
-            pluginName = 'libpepflashplayer_arm.so';
-            pluginVersion = '11.5.31.105';
+            pluginName = 'lin/libpepflashplayer_arm.so';
         } else {
-            pluginName = 'libpepflashplayer_linux.so';
-            pluginVersion = '32.0.0.207';
+            pluginName = 'lin/libpepflashplayer_amd.so';
         }
         break;
     case "freebsd":
     case "netbsd":
     case "openbsd":
         pluginName = 'libpepflashplayer.so';
-        pluginVersion = '32.0.0.207';
         break;
 }
 app.commandLine.appendSwitch("disable-renderer-backgrounding");
