@@ -14,13 +14,15 @@
     "build": "electron-builder --linux"
   },
   "devDependencies": {
+    "discord-rpc": "^3.1.4",
     "dotenv": "^8.2.0",
     "electron": "11.1.0",
     "electron-builder": "22.9.1",
     "electron-notarize": "^1.0.0"
   },
   "dependencies": {
-    "electron-updater": "4.3.5"
+    "electron-updater": "4.3.5",
+    "discord-rpc": "^3.1.4"
   },
   "build": {
     "appId": "me.city.app",
