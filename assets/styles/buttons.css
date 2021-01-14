@@ -88,6 +88,10 @@
     background: url('../images/reload.png');
 }
 
+.buttons .button .rpc {
+    background: url('../images/discord.png');
+}
+
 .buttons .button .cache {
     background: url('../images/cache.png');
 }
