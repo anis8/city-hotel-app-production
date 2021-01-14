@@ -10,19 +10,22 @@
 <body>
 <div id="alert" class="alert">
     <div class="box">
-        <div class="title">Attention...</div>
-        <div id="description" class="description">Tu souhaites vider ton cache et relancer l'application.</div>
-        <div class="btns">
-            <div id="cancel" class="button" style="float:left;background: #ed1c24;">
-                <div class="alpha"></div>
-                Annuler
-            </div>
+        <div id="title" class="title"></div>
+        <div id="description" class="description"></div>
+        <form id="form">
+            <input id="input" type="text" style="visibility: hidden;"/>
+            <div class="btns">
+                <div id="cancel" class="button" style="float:left;background: #ed1c24;">
+                    <div class="alpha"></div>
+                    Annuler
+                </div>
 
-            <div id="confirm" class="button">
-                <div class="alpha"></div>
-                Confirmer
+                <button type="submit" id="confirm" class="button">
+                    <div class="alpha"></div>
+                    Confirmer
+                </button>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 <div id="updater" class="updater">
