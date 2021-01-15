@@ -39,11 +39,12 @@
     <div class="logo"></div>
     <div id="version" class="version">...</div>
 </div>
-<iframe id="frame" width="100%" src="https://www.habbocity.me/profil?app=true"></iframe>
+<iframe id="frame" width="100%" src="http://localhost/city-hotel-local/hotel.php?id=2"></iframe>
 <div class="buttons">
     <div id="close">
         <div id="close-button" style="transform: scaleX(-1);"></div>
     </div>
+    <!--
     <div id="screen" class="button">
         <div class="icon screen"></div>
         <div class="tooltip">
@@ -51,6 +52,7 @@
             Plein écran
         </div>
     </div>
+    -->
     <div id="cache" class="button">
         <div class="icon cache"></div>
         <div class="tooltip">
@@ -81,11 +83,10 @@
 </div>
 <div id="messages"></div>
 <script>
-    const ipcRenderer = window.ipcRenderer;
-    const updater = document.getElementById("updater");
-    const progression = document.getElementById("progression");
-    const version = document.getElementById("version");
-
+    let ipcRenderer = window.ipcRenderer;
+    let updater = document.getElementById("updater");
+    let progression = document.getElementById("progression");
+    let version = document.getElementById("version");
 
     ipcRenderer.on("version", (event, data) => {
         version.innerHTML = data;
@@ -103,39 +104,92 @@
     });
 
 
-    const zoomIn = document.getElementById("zoomIn");
-    const zoomOut = document.getElementById("zoomOut");
-    const screen = document.getElementById("screen");
-    const iframe = document.getElementById("frame").contentWindow;
-    const reload = document.getElementById("reload");
-    const close = document.getElementById("close");
+    let isOpenButtons = true;
+    let zoomIn = document.getElementById("zoomIn");
+    let zoomOut = document.getElementById("zoomOut");
+    let iframe = document.getElementById("frame").contentWindow;
+    let reload = document.getElementById("reload");
+    let close = document.getElementById("close");
+    let cache = document.getElementById("cache");
+    let alert = document.getElementById("alert");
+    let cancel = document.getElementById("cancel");
+    let confirm = document.getElementById("confirm");
+    let title = document.getElementById("title");
+    let description = document.getElementById("description");
+    let form = document.getElementById('form');
+    let input = document.getElementById('input');
 
-    zoomIn.addEventListener('click', () => {
-        ipcRenderer.send("zoomIn", "");
-    });
-    screen.addEventListener('click', () => {
-        ipcRenderer.send("fullscreen", "");
-    });
-    zoomOut.addEventListener('click', () => {
-        ipcRenderer.send("zoomOut", "");
-    });
-
-    let checkClient = setInterval(clientFullScreen, 1000);
-    reload.addEventListener('click', () => {
-        iframe.location.reload();
-        checkClient = setInterval(clientFullScreen, 1000);
-    });
-
-    function clientFullScreen() {
+    let fullScreenFunction = () => {
         if (iframe.location.href === 'https://www.habbocity.me/hotel' && iframe.document.getElementById('hotel1')) {
             iframe.document.getElementById('hotel1').addEventListener('click', () => {
                 ipcRenderer.send("fullscreen", "");
             });
-            clearInterval(checkClient);
+            clearInterval(fullScreenInterval);
+        }
+    };
+    let fullScreenInterval = setInterval(fullScreenFunction, 1000);
+
+    let openAlert = (t, d, i, ipc) => {
+        alert.style.visibility = "visible";
+        title.innerText = t;
+        description.innerText = d;
+
+        if (i) {
+            input.style.visibility = "visible";
+        } else {
+            input.style.visibility = "hidden";
+        }
+
+        if (ipc) {
+            confirm.setAttribute('onClick', 'ipcRenderer.send("' + ipc + '", "");\n');
         }
     }
+    let closeAlert = () => {
+        alert.style.visibility = "hidden";
+        input.style.visibility = "hidden";
+        input.value = '';
+    }
 
-    let isOpenButtons = true;
+    let formSubmit = (event, type) => {
+        event = event || window.event;
+        event.preventDefault();
+        iframe.document.execCommand(type, false, input.value);
+        const selection = iframe.document.getSelection();
+        selection.anchorNode.parentElement.target = '_blank';
+        input.value = '';
+    }
+    let forumSendImage = () => {
+        if (iframe.location.pathname.startsWith('/forum/')) {
+            const link = iframe.document.querySelectorAll('#articlescombbcode')[3];
+            const img = iframe.document.querySelectorAll('#articlescombbcode')[4];
+            if (link && img) {
+                if (link.outerHTML !== '<button id="articlescombbcode" type="button" onclick="">Lien</button>' && img.outerHTML !== '<button id="articlescombbcode" type="button" onclick="">Image</button>') {
+                    link.setAttribute("onClick", "");
+                    img.setAttribute("onClick", "");
+                    link.addEventListener('click', () => {
+                        openAlert("Forum - Lien", "Entre le lien que tu souhaites insérer dans le champ ci-dessous.", true);
+                        form.setAttribute("onSubmit", "formSubmit(event, 'createLink')");
+                    });
+                    img.addEventListener('click', () => {
+                        openAlert("Forum - Image", "Entre l'adresse de l'image que tu souhaites insérer dans le champ ci-dessous.", true);
+                        form.setAttribute("onSubmit", "formSubmit(event, 'insertImage')");
+                    });
+                }
+            }
+        }
+    }
+    let forumSendImageInterval = setInterval(forumSendImage, 1000);
+
+    zoomIn.addEventListener('click', () => {
+        ipcRenderer.send("zoomIn", "");
+    });
+    zoomOut.addEventListener('click', () => {
+        ipcRenderer.send("zoomOut", "");
+    });
+    reload.addEventListener('click', () => {
+        iframe.location.reload();
+        fullScreenInterval = setInterval(fullScreenFunction, 1000);
+    });
     close.addEventListener('click', () => {
         if (!isOpenButtons) {
             isOpenButtons = true;
@@ -147,81 +201,15 @@
             document.getElementById('close-button').style.transform = "none";
         }
     });
-
-    const alert = document.getElementById("alert");
-    const cancel = document.getElementById("cancel");
-    const confirm = document.getElementById("confirm");
-    const titlea = document.getElementById("title");
-    const description = document.getElementById("description");
-    const forma = document.getElementById('form');
-    const inputa = document.getElementById('input');
-
+    cache.addEventListener('click', () => {
+        openAlert("Attention...", "Tu souhaites vider ton cache et relancer l'application.", false, "clearcache");
+    });
     cancel.addEventListener('click', () => {
         closeAlert();
     });
     confirm.addEventListener('click', () => {
         closeAlert();
     })
-
-    function openAlert(title, descr, input = undefined, ipc = undefined) {
-        alert.style.visibility = "visible";
-        titlea.innerText = title;
-        description.innerText = descr;
-
-        if (input) {
-            inputa.style.visibility = "visible";
-        } else {
-            inputa.style.visibility = "hidden";
-        }
-
-        if (ipc) {
-            confirm.setAttribute('onClick', 'ipcRenderer.send("' + ipc + '", "");\n');
-        }
-    }
-
-    function closeAlert() {
-        alert.style.visibility = "hidden";
-        inputa.style.visibility = "hidden";
-        inputa.value = '';
-    }
-
-    const cache = document.getElementById("cache");
-    cache.addEventListener('click', () => {
-        openAlert("Attention...", "Tu souhaites vider ton cache et relancer l'application.", false, "clearcache");
-    });
-
-    function formSubmit(event, type) {
-        event = event || window.event;
-        event.preventDefault();
-        iframe.document.execCommand(type, false, inputa.value);
-        const selection = iframe.document.getSelection();
-        selection.anchorNode.parentElement.target = '_blank';
-        inputa.value = '';
-    }
-
-    function forumSendImage() {
-        if (iframe.location.pathname.startsWith('/forum/')) {
-            const link = iframe.document.querySelectorAll('#articlescombbcode')[3];
-            const img = iframe.document.querySelectorAll('#articlescombbcode')[4];
-            if (link && img) {
-                if (link.outerHTML !== '<button id="articlescombbcode" type="button" onclick="">Lien</button>' && img.outerHTML !== '<button id="articlescombbcode" type="button" onclick="">Image</button>') {
-                    link.setAttribute("onClick", "");
-                    img.setAttribute("onClick", "");
-                    link.addEventListener('click', () => {
-                        openAlert("Forum - Lien", "Entre le lien que tu souhaites insérer dans le champ ci-dessous.", true);
-                        forma.setAttribute("onSubmit", "formSubmit(event, 'createLink')");
-                    });
-                    img.addEventListener('click', () => {
-                        openAlert("Forum - Image", "Entre l'adresse de l'image que tu souhaites insérer dans le champ ci-dessous.", true);
-                        forma.setAttribute("onSubmit", "formSubmit(event, 'insertImage')");
-                    });
-                }
-            }
-        }
-    }
-
-    const checkForum = setInterval(forumSendImage, 1000);
-
 </script>
 </body>
 </html>
