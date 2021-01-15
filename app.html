@@ -37,7 +37,7 @@
         <div class="loader"></div>
     </div>
     <div class="logo"></div>
-    <div id="version" class="version"></div>
+    <div id="version" class="version">...</div>
 </div>
 <iframe id="frame" width="100%" src="https://www.habbocity.me/profil?app=true"></iframe>
 <div class="buttons">
@@ -81,10 +81,11 @@
 </div>
 <div id="messages"></div>
 <script>
-    const {ipcRenderer} = require('electron');
+    const ipcRenderer = window.ipcRenderer;
     const updater = document.getElementById("updater");
     const progression = document.getElementById("progression");
     const version = document.getElementById("version");
+
 
     ipcRenderer.on("version", (event, data) => {
         version.innerHTML = data;
@@ -108,8 +109,6 @@
     const iframe = document.getElementById("frame").contentWindow;
     const reload = document.getElementById("reload");
     const close = document.getElementById("close");
-    let isOpenButtons = true;
-    let checkClient = setInterval(clientFullScreen, 1000);
 
     zoomIn.addEventListener('click', () => {
         ipcRenderer.send("zoomIn", "");
@@ -120,6 +119,8 @@
     zoomOut.addEventListener('click', () => {
         ipcRenderer.send("zoomOut", "");
     });
+
+    let checkClient = setInterval(clientFullScreen, 1000);
     reload.addEventListener('click', () => {
         iframe.location.reload();
         checkClient = setInterval(clientFullScreen, 1000);
@@ -134,6 +135,7 @@
         }
     }
 
+    let isOpenButtons = true;
     close.addEventListener('click', () => {
         if (!isOpenButtons) {
             isOpenButtons = true;
@@ -202,7 +204,7 @@
             const link = iframe.document.querySelectorAll('#articlescombbcode')[3];
             const img = iframe.document.querySelectorAll('#articlescombbcode')[4];
             if (link && img) {
-                if(link.outerHTML !== '<button id="articlescombbcode" type="button" onclick="">Lien</button>' && img.outerHTML !== '<button id="articlescombbcode" type="button" onclick="">Image</button>') {
+                if (link.outerHTML !== '<button id="articlescombbcode" type="button" onclick="">Lien</button>' && img.outerHTML !== '<button id="articlescombbcode" type="button" onclick="">Image</button>') {
                     link.setAttribute("onClick", "");
                     img.setAttribute("onClick", "");
                     link.addEventListener('click', () => {

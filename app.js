@@ -42,61 +42,46 @@ app.commandLine.appendSwitch('no-sandbox');
 
 
 let sendWindow = (identifier, message) => {
-    mainWindow.webContents.send(identifier, message);
+    mainWindow.send(identifier, message);
 };
 let createWindow = async () => {
+
     mainWindow = new BrowserWindow({
         title: "HabboCity",
         icon: path.join(__dirname, '/icon.png'),
         webPreferences: {
             plugins: true,
-            nodeIntegration: true,
+            nodeIntegration: false,
             contextIsolation: false,
-            webviewTag: true,
-            webSecurity: false
+            webSecurity: false,
+            preload: path.join(__dirname, './preload.js')
         },
         show: false,
         frame: true,
         backgroundColor: "#000",
     });
+
     mainWindow.maximize();
     mainWindow.show();
     mainWindow.setMenu(null);
-
-    if (process.platform === "darwin") {
-        app.dock.setIcon(nativeImage.createFromPath(
-            path.join(__dirname, '/icon.png')
-        ));
-    }
-
-    mainWindow.on('close', (event) => {
-        if (app.quitting) {
-            mainWindow = null
-        } else {
-            event.preventDefault()
-            mainWindow.hide()
-        }
-
-        if (process.platform !== 'darwin') {
-            app.quit();
-        }
+    mainWindow.on('closed', () => {
+        mainWindow = null;
     });
+    mainWindow.webContents.openDevTools();
 
     await mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, `app.html`),
         protocol: 'file:',
         slashes: true
     }));
-    sendWindow("version", app.getVersion());
 
+    sendWindow("version", app.getVersion());
     ipcMain.on('clearcache', async () => {
         let session = mainWindow.webContents.session;
         await session.clearCache();
         app.relaunch();
         app.exit();
     });
-
-
     ipcMain.on('fullscreen', () => {
         if (mainWindow.isFullScreen())
             mainWindow.setFullScreen(false);
@@ -117,12 +102,18 @@ let createWindow = async () => {
         }
     });
 
+    if (process.platform === "darwin") {
+        app.dock.setIcon(nativeImage.createFromPath(
+            path.join(__dirname, '/icon.png')
+        ));
+    }
+
     mainWindow.webContents.on('new-window', (e, url) => {
         const splitUrl = url.replace('https://', '').split('.');
         let checkUrl = splitUrl[0];
-        if(url.replace('https://', '').startsWith('www.') || url.replace('https://', '').startsWith('swf.')) checkUrl = splitUrl[1];
+        if (url.replace('https://', '').startsWith('www.') || url.replace('https://', '').startsWith('swf.')) checkUrl = splitUrl[1];
 
-        if(checkUrl !== 'habbocity') {
+        if (checkUrl !== 'habbocity') {
             e.preventDefault();
             require('electron').shell.openExternal(url);
         }
@@ -134,13 +125,12 @@ app.on('ready', async () => {
     await autoUpdater.checkForUpdatesAndNotify();
 });
 
-
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();
     }
 });
-app.on('before-quit', () => app.quitting = true);
+
 app.on('activate', async () => {
     if (mainWindow === null) {
         await createWindow();
