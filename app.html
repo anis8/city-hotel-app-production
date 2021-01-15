@@ -10,14 +10,14 @@
 <body>
 <div id="alert" class="alert">
     <div class="box">
-        <div class="title">Attention...</div>
+        <div id="title" class="title">Attention...</div>
         <div id="description" class="description">Tu souhaites vider ton cache et relancer l'application.</div>
+        <input id="input" placeholder="Mon text"/>
         <div class="btns">
             <div id="cancel" class="button" style="float:left;background: #ed1c24;">
                 <div class="alpha"></div>
                 Annuler
             </div>
-
             <div id="confirm" class="button">
                 <div class="alpha"></div>
                 Confirmer
@@ -114,8 +114,6 @@
     let alert = document.getElementById("alert");
     let cancel = document.getElementById("cancel");
     let confirm = document.getElementById("confirm");
-    let title = document.getElementById("title");
-    let description = document.getElementById("description");
     let form = document.getElementById('form');
     let input = document.getElementById('input');
 
@@ -130,6 +128,9 @@
     let fullScreenInterval = setInterval(fullScreenFunction, 1000);
 
     let openAlert = (t, d, i, ipc) => {
+        let title = document.getElementById("title");
+        let description = document.getElementById("description");
+
         alert.style.visibility = "visible";
         title.innerText = t;
         description.innerText = d;
