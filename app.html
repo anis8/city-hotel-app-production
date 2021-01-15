@@ -141,7 +141,7 @@
     let openAlert = (t, d, i, ipc, next) => {
         alert.style.visibility = "visible";
         title.innerText = t;
-        description.innerText = d;
+        description.innerHTML = d;
 
         if (i) {
             input.style.visibility = "visible";
@@ -226,7 +226,7 @@
     function discordRpc() {
         if (iframe) {
             let iframeData = {
-                pathname: iframe.location.pathname,
+                pathname: iframe.location.pathname.replace('.php', ''),
                 title: iframe.document.title,
                 elements: []
             };
@@ -373,16 +373,16 @@
                 if (iframe.document.getElementById('ai5')) iframeData.elements.push(iframe.document.getElementById('ai5').innerText);
             }
 
-            if (updater.style.display !== 'none') {
+            if (updater.style.display === 'block') {
                 iframeData.update = true;
             }
 
             ipcRenderer.send('updateRpc', iframeData);
-            iframeData = null;
+            iframeData = {};
         }
     }
 
-    const checkRpc = setInterval(discordRpc, 15000);
+    const checkRpc = setInterval(discordRpc, 5000);
     const toggleRpc = document.getElementById("toggleRpc");
 
     toggleRpc.addEventListener('click', () => {
