@@ -1,4 +1,4 @@
-const {app, BrowserWindow, ipcMain} = require('electron');
+const {app, nativeImage, BrowserWindow, ipcMain} = require('electron');
 const {autoUpdater} = require("electron-updater");
 
 const path = require('path');
@@ -7,77 +7,83 @@ const url = require('url');
 const DiscordRPC = require('discord-rpc');
 
 let pluginName;
-let pluginVersion;
 let mainWindow;
 
 switch (process.platform) {
     case 'win32':
         if (process.arch === "x32" || process.arch === "ia32") {
-            pluginName = 'pepflashplayer-32.dll';
-            pluginVersion = '32.0.0.465';
+            pluginName = 'win/pepflashplayer-32.dll';
         } else {
-            pluginName = 'pepflashplayer.dll';
-            pluginVersion = '20.0.0.306';
+            pluginName = 'win/pepflashplayer.dll';
         }
         break;
     case 'darwin':
-        pluginName = 'PepperFlashPlayer.plugin';
-        pluginVersion = '32.0.0.207';
+        pluginName = 'mac/PepperFlashPlayer.plugin';
         break;
     case "linux":
-        pluginName = 'libpepflashplayer.so';
-        pluginVersion = '32.0.0.465';
+        if (process.arch === "arm") {
+            pluginName = 'lin/libpepflashplayer_arm.so';
+        } else {
+            pluginName = 'lin/libpepflashplayer_amd.so';
+        }
         break;
     case "freebsd":
     case "netbsd":
     case "openbsd":
         pluginName = 'libpepflashplayer.so';
-        pluginVersion = '32.0.0.207';
         break;
 }
 app.commandLine.appendSwitch("disable-renderer-backgrounding");
-app.commandLine.appendSwitch('high-dpi-support', "1");
-app.commandLine.appendSwitch('force-device-scale-factor', "1");
+if (process.platform !== "darwin") {
+    app.commandLine.appendSwitch('high-dpi-support', "1");
+    app.commandLine.appendSwitch('force-device-scale-factor', "1");
+}
 app.commandLine.appendSwitch('ppapi-flash-path', path.join(__dirname.includes(".asar") ? process.resourcesPath : __dirname, "flash/" + pluginName));
 app.commandLine.appendSwitch('disable-site-isolation-trials');
 app.commandLine.appendSwitch('no-sandbox');
 
 
 let sendWindow = (identifier, message) => {
-    mainWindow.webContents.send(identifier, message);
+    mainWindow.send(identifier, message);
 };
 let createWindow = async () => {
+
     mainWindow = new BrowserWindow({
         title: "HabboCity",
-        icon: path.join(__dirname, '/icon.ico'),
+        icon: path.join(__dirname, '/icon.png'),
         webPreferences: {
             plugins: true,
-            nodeIntegration: true,
-            contextIsolation: false
+            nodeIntegration: false,
+            contextIsolation: false,
+            webSecurity: false,
+            preload: path.join(__dirname, './preload.js')
         },
         show: false,
         frame: true,
         backgroundColor: "#000",
     });
+
     mainWindow.maximize();
     mainWindow.show();
     mainWindow.setMenu(null);
+    mainWindow.on('closed', () => {
+        mainWindow = null;
+    });
+    //mainWindow.webContents.openDevTools();
 
     await mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, `app.html`),
         protocol: 'file:',
         slashes: true
     }));
-    sendWindow("version", app.getVersion());
 
+    sendWindow("version", app.getVersion());
     ipcMain.on('clearcache', async () => {
         let session = mainWindow.webContents.session;
         await session.clearCache();
         app.relaunch();
         app.exit();
     });
-
-
     ipcMain.on('fullscreen', () => {
         if (mainWindow.isFullScreen())
             mainWindow.setFullScreen(false);
@@ -98,6 +104,22 @@ let createWindow = async () => {
         }
     });
 
+    if (process.platform === "darwin") {
+        app.dock.setIcon(nativeImage.createFromPath(
+            path.join(__dirname, '/icon.png')
+        ));
+    }
+
+    mainWindow.webContents.on('new-window', (e, url) => {
+        const splitUrl = url.replace('https://', '').split('.');
+        let checkUrl = splitUrl[0];
+        if (url.replace('https://', '').startsWith('www.') || url.replace('https://', '').startsWith('swf.')) checkUrl = splitUrl[1];
+
+        if (checkUrl !== 'habbocity') {
+            e.preventDefault();
+            require('electron').shell.openExternal(url);
+        }
+    });
 
     const clientId = '798873369315377163';
     let startRpc = false;
@@ -123,7 +145,6 @@ let createWindow = async () => {
                     instance: false,
                     startTimestamp
                 });
-
             });
             rpc.login({clientId});
 
@@ -547,18 +568,6 @@ let createWindow = async () => {
             sendWindow('update-not-available', '');
         }
     });
-
-
-    mainWindow.webContents.on('new-window', (e, url) => {
-        const splitUrl = url.replace('https://', '').split('.');
-        let checkUrl = splitUrl[0];
-        if(url.replace('https://', '').startsWith('www.') || url.replace('https://', '').startsWith('swf.')) checkUrl = splitUrl[1];
-
-        if(checkUrl !== 'habbocity') {
-            e.preventDefault();
-            require('electron').shell.openExternal(url);
-        }
-    });
 };
 
 app.on('ready', async () => {
@@ -566,12 +575,12 @@ app.on('ready', async () => {
     await autoUpdater.checkForUpdatesAndNotify();
 });
 
-
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();
     }
 });
+
 app.on('activate', async () => {
     if (mainWindow === null) {
         await createWindow();
