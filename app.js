@@ -41,7 +41,11 @@ if (process.platform !== "darwin") {
 app.commandLine.appendSwitch('ppapi-flash-path', path.join(__dirname.includes(".asar") ? process.resourcesPath : __dirname, "flash/" + pluginName));
 app.commandLine.appendSwitch('disable-site-isolation-trials');
 app.commandLine.appendSwitch('no-sandbox');
-
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
+});
 
 let sendWindow = (identifier, message) => {
     mainWindow.send(identifier, message);
@@ -573,12 +577,6 @@ let createWindow = async () => {
 app.on('ready', async () => {
     await createWindow();
     await autoUpdater.checkForUpdatesAndNotify();
-});
-
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
 });
 
 app.on('activate', async () => {
