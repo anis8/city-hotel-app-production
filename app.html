@@ -111,7 +111,6 @@
         progression.innerHTML = Math.round(data['percent']) + "%";
     });
 
-
     let isOpenButtons = true;
     let zoomIn = document.getElementById("zoomIn");
     let zoomOut = document.getElementById("zoomOut");
@@ -136,7 +135,7 @@
     let fullScreenInterval = setInterval(fullScreenFunction, 1000);
 
 
-    let openAlert = (t, d, i, ipc, next) => {
+    let openAlert = (t, d, btns, i, ipc, ipcArgs, next) => {
         let title = document.getElementById("title");
         let description = document.getElementById("description");
         alert.style.visibility = "visible";
@@ -144,16 +143,24 @@
         description.innerHTML = d;
         input.value = '';
 
-        if (i) {
+        if (btns.length !== 0) {
+            cancel.innerHTML = '<div class="alpha"></div>' + btns[0];
+            confirm.innerHTML = '<div class="alpha"></div>' + btns[1];
+        } else {
+            cancel.innerHTML = '<div class="alpha"></div>Annuler';
+            confirm.innerHTML = '<div class="alpha"></div>Confirmer';
+        }
+
+        if (i === true) {
             input.style.visibility = "visible";
         } else {
             input.style.visibility = "hidden";
         }
 
         if (ipc) {
-            confirm.setAttribute('onClick', 'ipcRenderer.send("' + ipc + '", "");\n');
+            confirm.setAttribute('onClick', 'ipcRenderer.send("' + ipc + '", ' + ipcArgs + ');\n');
             if (next) {
-                confirm.setAttribute('onClick', 'ipcRenderer.send("' + ipc + '", "");' + next + '\n');
+                confirm.setAttribute('onClick', 'ipcRenderer.send("' + ipc + '", ' + ipcArgs + ');' + next + '\n');
             }
         }
     }
@@ -161,6 +168,19 @@
         alert.style.visibility = "hidden";
         input.style.visibility = "hidden";
     }
+
+    ipcRenderer.on("askForUpdate", () => {
+        if (iframe.location.pathname.replace('.php', '') !== '/hotel') {
+            openAlert('Mise à jour', 'Une mise à jour de l\'application est disponible !', ['Plus tard', 'Installer'], false, "responseForUpdate", true);
+        } else {
+            const updateHotel = setInterval(() => {
+                if (iframe.location.pathname.replace('.php', '') !== '/hotel') {
+                    openAlert('Mise à jour', 'Une mise à jour de l\'application est disponible !', ['Plus tard', 'Installer'], false, "responseForUpdate", true);
+                    clearInterval(updateHotel);
+                }
+            }, 30000);
+        }
+    });
 
     let formSubmit = (event, type) => {
         event = event || window.event;
@@ -178,11 +198,11 @@
                     link.setAttribute("onClick", "");
                     img.setAttribute("onClick", "");
                     link.addEventListener('click', () => {
-                        openAlert("Forum - Lien", "Entre le lien que tu souhaites insérer dans le champ ci-dessous.", true);
+                        openAlert("Forum - Lien", "Entre le lien que tu souhaites insérer dans le champ ci-dessous.", [], true);
                         form.setAttribute("onSubmit", "formSubmit(event, 'createLink')");
                     });
                     img.addEventListener('click', () => {
-                        openAlert("Forum - Image", "Entre l'adresse de l'image que tu souhaites insérer dans le champ ci-dessous.", true);
+                        openAlert("Forum - Image", "Entre l'adresse de l'image que tu souhaites insérer dans le champ ci-dessous.", [], true);
                         form.setAttribute("onSubmit", "formSubmit(event, 'insertImage')");
                     });
                 }
@@ -213,7 +233,7 @@
         }
     });
     cache.addEventListener('click', () => {
-        openAlert("Attention...", "Tu souhaites vider ton cache et relancer l'application.", false, "clearcache");
+        openAlert("Attention...", "Tu souhaites vider ton cache et relancer l'application.", [], false, "clearcache");
     });
     cancel.addEventListener('click', () => {
         closeAlert();
@@ -385,7 +405,7 @@
     const toggleRpc = document.getElementById("toggleRpc");
 
     toggleRpc.addEventListener('click', () => {
-        openAlert("Attention...", "Tu souhaites activer ou désactiver la Rich Presence Discord. <br/><i>(Tu devras activer l'affichage de jeu dans tes paramètres Discord.)</i>", false, "toggleRpc", "discordRpc();");
+        openAlert("Attention...", "Tu souhaites activer ou désactiver la Rich Presence Discord. <br/><i>(Tu devras activer l'affichage de jeu dans tes paramètres Discord.)</i>", [], false, "toggleRpc", '', "discordRpc();");
     });
 
 </script>

@@ -90,7 +90,6 @@ try {
                 mainWindow.setFullScreen(false);
             else
                 mainWindow.setFullScreen(true);
-
         });
         ipcMain.on('zoomOut', () => {
             let factor = mainWindow.webContents.getZoomFactor();
@@ -576,6 +575,9 @@ try {
             app.quit();
         }
     });
+
+    let appStart = false;
+    let checkForUpdate;
     app.on('ready', async () => {
         await createWindow();
         await autoUpdater.checkForUpdatesAndNotify();
@@ -587,13 +589,21 @@ try {
     });
 
     autoUpdater.on('checking-for-update', () => {
-        sendWindow('checking-for-update', '');
+        if (appStart === false) sendWindow('checking-for-update', '');
     });
     autoUpdater.on('update-available', () => {
-        sendWindow('update-available', '');
+        if (appStart === false) {
+            sendWindow('update-available', '');
+        } else if (appStart === true) {
+            clearInterval(checkForUpdate);
+        }
     });
     autoUpdater.on('update-not-available', () => {
         sendWindow('update-not-available', '');
+        appStart = true;
+        checkForUpdate = setInterval(async () => {
+            await autoUpdater.checkForUpdates();
+        }, 900000);
     });
     autoUpdater.on('error', (err) => {
         sendWindow('error', 'Error: ' + err);
@@ -606,10 +616,18 @@ try {
             total: d.total
         });
     });
-    autoUpdater.on('update-downloaded', () => {
-        sendWindow('update-downloaded', 'Update downloaded');
-        autoUpdater.quitAndInstall();
+    autoUpdater.on('update-downloaded', async () => {
+        if (appStart === false) {
+            sendWindow('update-downloaded', 'Update downloaded');
+            autoUpdater.quitAndInstall();
+        } else if (appStart === true) {
+            sendWindow('askForUpdate', '');
+            await ipcMain.on('responseForUpdate', (e, response) => {
+                if (response === true) autoUpdater.quitAndInstall();
+            });
+        }
     });
+
 } catch (e) {
     app.quit();
 }
