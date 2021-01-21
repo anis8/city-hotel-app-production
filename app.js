@@ -613,8 +613,10 @@ try {
             speed: d.bytesPerSecond,
             percent: d.percent,
             transferred: d.transferred,
-            total: d.total
+            total: d.total,
+            inBack: appStart
         });
+        mainWindow.setProgressBar(d.percent / 100);
     });
     autoUpdater.on('update-downloaded', async () => {
         if (appStart === false) {
