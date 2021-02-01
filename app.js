@@ -32,14 +32,15 @@ try {
             pluginName = 'libpepflashplayer.so';
             break;
     }
-    app.commandLine.appendSwitch("disable-renderer-backgrounding");
+    //app.commandLine.appendSwitch("disable-renderer-backgrounding");
     if (process.platform !== "darwin") {
         app.commandLine.appendSwitch('high-dpi-support', "1");
         app.commandLine.appendSwitch('force-device-scale-factor', "1");
     }
     app.commandLine.appendSwitch('ppapi-flash-path', path.join(__dirname.includes(".asar") ? process.resourcesPath : __dirname, "flash/" + pluginName));
-    app.commandLine.appendSwitch('disable-site-isolation-trials');
-    app.commandLine.appendSwitch('no-sandbox');
+    //app.disableHardwareAcceleration();
+    //app.commandLine.appendSwitch('disable-site-isolation-trials');
+    //app.commandLine.appendSwitch('no-sandbox');
 
 
     let sendWindow = (identifier, message) => {
@@ -53,7 +54,7 @@ try {
             webPreferences: {
                 plugins: true,
                 nodeIntegration: false,
-                contextIsolation: false,
+                contextIsolation: true,
                 webSecurity: false,
                 preload: path.join(__dirname, './preload.js')
             },
@@ -123,6 +124,7 @@ try {
 
     app.on('window-all-closed', () => {
         if (process.platform !== 'darwin') {
+            app.exit(0);
             app.quit();
         }
     });
@@ -161,5 +163,6 @@ try {
         autoUpdater.quitAndInstall();
     });
 } catch (e) {
+    app.exit(0);
     app.quit();
 }
