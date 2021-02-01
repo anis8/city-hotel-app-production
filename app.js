@@ -124,6 +124,7 @@ try {
 
     app.on('window-all-closed', () => {
         if (process.platform !== 'darwin') {
+            ipcMain.removeAllListeners();
             app.exit(0);
             app.quit();
         }
