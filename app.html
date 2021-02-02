@@ -151,36 +151,6 @@
         input.value = '';
     }
 
-    let formSubmit = (event, type) => {
-        event = event || window.event;
-        event.preventDefault();
-        iframe.document.execCommand(type, false, input.value);
-        const selection = iframe.document.getSelection();
-        selection.anchorNode.parentElement.target = '_blank';
-        input.value = '';
-    }
-    let forumSendImage = () => {
-        if (iframe.location.pathname.startsWith('/forum/')) {
-            const link = iframe.document.querySelectorAll('#articlescombbcode')[3];
-            const img = iframe.document.querySelectorAll('#articlescombbcode')[4];
-            if (link && img) {
-                if (link.outerHTML !== '<button id="articlescombbcode" type="button" onclick="">Lien</button>' && img.outerHTML !== '<button id="articlescombbcode" type="button" onclick="">Image</button>') {
-                    link.setAttribute("onClick", "");
-                    img.setAttribute("onClick", "");
-                    link.addEventListener('click', () => {
-                        openAlert("Forum - Lien", "Entre le lien que tu souhaites insérer dans le champ ci-dessous.", true);
-                        form.setAttribute("onSubmit", "formSubmit(event, 'createLink')");
-                    });
-                    img.addEventListener('click', () => {
-                        openAlert("Forum - Image", "Entre l'adresse de l'image que tu souhaites insérer dans le champ ci-dessous.", true);
-                        form.setAttribute("onSubmit", "formSubmit(event, 'insertImage')");
-                    });
-                }
-            }
-        }
-    }
-    let forumSendImageInterval = setInterval(forumSendImage, 1000);
-
     zoomIn.addEventListener('click', () => {
         ipcRenderer.send("zoomIn", "");
     });

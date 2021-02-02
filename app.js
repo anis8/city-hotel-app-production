@@ -39,7 +39,7 @@ try {
     }
     app.commandLine.appendSwitch('ppapi-flash-path', path.join(__dirname.includes(".asar") ? process.resourcesPath : __dirname, "flash/" + pluginName));
     //app.disableHardwareAcceleration();
-    //app.commandLine.appendSwitch('disable-site-isolation-trials');
+    app.commandLine.appendSwitch('disable-site-isolation-trials');
     //app.commandLine.appendSwitch('no-sandbox');
 
 
@@ -54,7 +54,7 @@ try {
             webPreferences: {
                 plugins: true,
                 nodeIntegration: false,
-                contextIsolation: true,
+                contextIsolation: false,
                 webSecurity: false,
                 preload: path.join(__dirname, './preload.js')
             },
@@ -69,7 +69,8 @@ try {
         mainWindow.on('closed', () => {
             mainWindow = null;
         });
-        //mainWindow.webContents.openDevTools();
+
+       // mainWindow.webContents.openDevTools();
 
         await mainWindow.loadURL(url.format({
             pathname: path.join(__dirname, `app.html`),
@@ -129,6 +130,11 @@ try {
             app.quit();
         }
     });
+    app.on('before-quit', () => {
+        mainWindow.removeAllListeners('close');
+        mainWindow.close();
+    });
+
     app.on('ready', async () => {
         await createWindow();
         await autoUpdater.checkForUpdatesAndNotify();
