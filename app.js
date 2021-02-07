@@ -73,7 +73,7 @@ try {
             mainWindow = null;
         });
 
-       // mainWindow.webContents.openDevTools();
+        ///mainWindow.webContents.openDevTools();
 
         await mainWindow.loadURL(url.format({
             pathname: path.join(__dirname, `app.html`),
@@ -634,13 +634,13 @@ try {
         });
         mainWindow.setProgressBar(d.percent / 100);
     });
-    autoUpdater.on('update-downloaded', async () => {
+    autoUpdater.on('update-downloaded', () => {
         if (appStart === false) {
             sendWindow('update-downloaded', 'Update downloaded');
             autoUpdater.quitAndInstall();
         } else if (appStart === true) {
             sendWindow('askForUpdate', '');
-            await ipcMain.on('responseForUpdate', (e, response) => {
+            ipcMain.on('responseForUpdate', (e, response) => {
                 if (response === true) autoUpdater.quitAndInstall();
             });
         }
