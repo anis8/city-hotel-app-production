@@ -9,6 +9,7 @@ try {
 
     let pluginName;
     let mainWindow;
+    let rpc = null;
 
     switch (process.platform) {
         case 'win32':
@@ -34,14 +35,15 @@ try {
             pluginName = 'libpepflashplayer.so';
             break;
     }
-    app.commandLine.appendSwitch("disable-renderer-backgrounding");
+    //app.commandLine.appendSwitch("disable-renderer-backgrounding");
     if (process.platform !== "darwin") {
         app.commandLine.appendSwitch('high-dpi-support', "1");
         app.commandLine.appendSwitch('force-device-scale-factor', "1");
     }
     app.commandLine.appendSwitch('ppapi-flash-path', path.join(__dirname.includes(".asar") ? process.resourcesPath : __dirname, "flash/" + pluginName));
+    //app.disableHardwareAcceleration();
     app.commandLine.appendSwitch('disable-site-isolation-trials');
-    app.commandLine.appendSwitch('no-sandbox');
+    //app.commandLine.appendSwitch('no-sandbox');
 
 
     let sendWindow = (identifier, message) => {
@@ -70,7 +72,8 @@ try {
         mainWindow.on('closed', () => {
             mainWindow = null;
         });
-        //mainWindow.webContents.openDevTools();
+
+       // mainWindow.webContents.openDevTools();
 
         await mainWindow.loadURL(url.format({
             pathname: path.join(__dirname, `app.html`),
@@ -123,7 +126,6 @@ try {
 
         const clientId = '798873369315377163';
         let startRpc = false;
-        let rpc;
         let startTimestamp;
         let details = null;
         let state = null;
@@ -570,14 +572,28 @@ try {
         });
     };
 
+    let appStart = false;
+    let checkForUpdate = null;
+
     app.on('window-all-closed', () => {
         if (process.platform !== 'darwin') {
+            ipcMain.removeAllListeners();
+            app.exit(0);
             app.quit();
         }
     });
 
-    let appStart = false;
-    let checkForUpdate;
+    app.on('before-quit', () => {
+        if(rpc !== null){
+            rpc.clearActivity();
+            rpc.destroy();
+            rpc = null;
+        }
+        if(checkForUpdate !== null) clearInterval(checkForUpdate);
+        mainWindow.removeAllListeners('close');
+        mainWindow.close();
+    });
+
     app.on('ready', async () => {
         await createWindow();
         await autoUpdater.checkForUpdatesAndNotify();
@@ -631,5 +647,6 @@ try {
     });
 
 } catch (e) {
+    app.exit(0);
     app.quit();
 }
