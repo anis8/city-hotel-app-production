@@ -3,7 +3,7 @@
   "version": "1.0.7",
   "productName": "HabboCity",
   "main": "app.js",
-  "description": "City: Créez votre avatar, décorez votre appartement ! Tchattez avec vos amis.",
+  "description": "HabboCity: Créez votre avatar, décorez votre appartement ! Tchattez avec vos amis.",
   "homepage": "https://habbocity.me",
   "author": {
     "name": "City Games",
@@ -29,7 +29,8 @@
     "appId": "me.habbocity.CityApp",
     "files": "!build/SignHook.js",
     "extraResources": [
-      "./flash/**"
+      "./flash/**",
+      "./discord/**"
     ],
     "directories": {
       "buildResources": "resources",
@@ -56,7 +57,7 @@
     "nsis": {
       "installerIcon": "icon.ico",
       "uninstallerIcon": "icon.ico",
-      "uninstallDisplayName": "City",
+      "uninstallDisplayName": "HabboCity",
       "oneClick": true,
       "perMachine": false,
       "artifactName": "City-${version}.${ext}"
