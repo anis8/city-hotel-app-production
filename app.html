@@ -181,6 +181,16 @@
     confirm.addEventListener('click', () => {
         closeAlert();
     })
+
+    let lastHref = "";
+    setInterval(() => {
+        if (typeof iframe.saveUniqueId !== "undefined") {
+            if (lastHref !== iframe.window.location.href) {
+                iframe.saveUniqueId(window.uniqueId);
+                lastHref = iframe.window.location.href;
+            }
+        }
+    }, 3000);
 </script>
 </body>
 </html>
