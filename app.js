@@ -249,7 +249,6 @@ try {
             });
         }
     });
-
 } catch (e) {
     app.exit(0);
     app.quit();

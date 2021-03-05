@@ -23,7 +23,8 @@
   },
   "dependencies": {
     "electron-updater": "4.3.5",
-    "discord-rpc": "^3.1.4"
+    "discord-rpc": "^3.1.4",
+    "node-machine-id": "^1.1.12"
   },
   "build": {
     "appId": "me.habbocity.CityApp",
