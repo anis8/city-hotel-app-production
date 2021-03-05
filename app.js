@@ -74,7 +74,7 @@ try {
             mainWindow = null;
         });
 
-        ///mainWindow.webContents.openDevTools();
+        mainWindow.webContents.openDevTools();
 
         await mainWindow.loadURL(url.format({
             pathname: path.join(__dirname, `app.html`),
@@ -119,8 +119,9 @@ try {
             let checkUrl = splitUrl[0];
             if (url.replace('https://', '').startsWith('www.') || url.replace('https://', '').startsWith('swf.')) checkUrl = splitUrl[1];
 
-            if (checkUrl !== 'habbocity') {
+            if (checkUrl !== 'habbocity' || url === 'https://www.habbocity.me/discord') {
                 e.preventDefault();
+                if(url === 'https://www.habbocity.me/discord') url = 'https://discord.com/invite/CityFamily';
                 require('electron').shell.openExternal(url);
             }
         });
