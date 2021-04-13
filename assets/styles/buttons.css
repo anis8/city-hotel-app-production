@@ -83,7 +83,6 @@
     background: url('../images/screen.png');
 }
 
-
 .buttons .button .reload {
     background: url('../images/reload.png');
 }
@@ -98,6 +97,10 @@
 
 .buttons .button .in {
     background: url('../images/in.png');
+}
+
+.buttons .button .reset {
+    background: url('../images/reset.png');
 }
 
 .buttons .button:hover {

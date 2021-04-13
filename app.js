@@ -107,6 +107,9 @@ try {
                 mainWindow.webContents.setZoomFactor(factor + 0.01);
             }
         });
+        ipcMain.on('zoomReset', () => {
+            mainWindow.webContents.setZoomFactor(1);
+        });
 
         if (process.platform === "darwin") {
             app.dock.setIcon(nativeImage.createFromPath(

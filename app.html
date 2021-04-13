@@ -69,6 +69,13 @@
             Zoom -1%
         </div>
     </div>
+    <div id="zoomReset" class="button">
+        <div class="icon reset"></div>
+        <div class="tooltip">
+            <div class="arrow"></div>
+            Réinitialiser le Zoom
+        </div>
+    </div>
     <div id="zoomIn" class="button">
         <div class="icon in"></div>
         <div class="tooltip">
@@ -79,13 +86,13 @@
     <div id="reload" class="button">
         <div class="icon reload"></div>
         <div class="tooltip">
-            Recharger
+            Recharger la page
         </div>
     </div>
     <div id="toggleRpc" class="button" style="margin-bottom: 6px">
         <div class="icon rpc"></div>
         <div class="tooltip">
-            Activer / Désactiver la Rich Presence Discord
+            Rich Presence Discord
         </div>
     </div>
 </div>
@@ -132,6 +139,7 @@
 
     let isOpenButtons = true;
     let zoomIn = document.getElementById("zoomIn");
+    let zoomReset = document.getElementById("zoomReset");
     let zoomOut = document.getElementById("zoomOut");
     let reload = document.getElementById("reload");
     let close = document.getElementById("close");
@@ -181,6 +189,7 @@
             }
         }
     }
+
     let closeAlert = () => {
         alert.style.visibility = "hidden";
         input.style.visibility = "hidden";
@@ -191,6 +200,9 @@
 
     zoomIn.addEventListener('click', () => {
         ipcRenderer.send("zoomIn", "");
+    });
+    zoomReset.addEventListener('click', () => {
+       ipcRenderer.send("zoomReset", "");
     });
     zoomOut.addEventListener('click', () => {
         ipcRenderer.send("zoomOut", "");
