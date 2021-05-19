@@ -2,9 +2,22 @@ module.exports = {
     rpcUpdate: function (data, version) {
         let details;
         let state;
+        let buttonLabel = 'Aller sur la page';
+        let buttonUrl = 'https://www.habbocity.me' + data.pathname.toLowerCase();
+
         if (data.pathname.toLowerCase() === "/" || data.pathname.toLowerCase() === "/index") {
             details = 'Accueil - Connexion';
             state = 'Se connecte à HabboCity';
+        }
+
+        if (data.pathname.toLowerCase() === "/hotel") {
+            details = "Hôtel";
+            state = "Joue sur l'hôtel";
+            if (data.elements[0] && data.elements[1]) {
+                state = 'Est dans l\'appartement : ' + data.elements[0];
+                buttonLabel = 'Rejoindre l\'appartement';
+                buttonUrl = 'https://www.habbocity.me/room/' + data.elements[1];
+            }
         }
 
         if (data.pathname.toLowerCase() === "/register") {
@@ -49,11 +62,6 @@ module.exports = {
                     }
                 }
             }
-        }
-
-        if (data.pathname.toLowerCase() === "/hotel") {
-            details = "Hôtel";
-            state = "Joue sur l'hôtel";
         }
 
         if (data.pathname.toLowerCase() === "/meet") {
@@ -399,11 +407,10 @@ module.exports = {
             state = "Version : " + version;
         }
 
-        if (data.details !== null & data.state !== null) {
-            return [details, state];
+        if (data.details !== null && data.state !== null) {
+            return [details, state, buttonLabel, buttonUrl];
         } else {
-            return ['Erreur', 'Erreur'];
+            return ['Erreur', 'Erreur', 'Erreur', 'Erreur'];
         }
-
     }
 }

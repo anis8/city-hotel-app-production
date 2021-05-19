@@ -1,4 +1,20 @@
 function updateIframeData(iframeData, iframe, updater) {
+    if (iframeData.pathname.toLowerCase() === '/hotel') {
+        const hotelFrame = iframe.document.getElementById('hotelframe').contentWindow;
+        const roomSell = hotelFrame.document.getElementById('vendre-marche');
+        if (hotelFrame && roomSell) {
+            const roomSellClick = hotelFrame.document.getElementById('vendre-marche-click');
+            if (roomSellClick && roomSellClick.onclick !== null) {
+                const roomInfo = roomSellClick.onclick.toString().split("'");
+                if (roomSell.style.display === 'block') {
+                    iframeData.elements.push(roomInfo[9]);
+                    iframeData.elements.push(roomInfo[5]);
+                    ///Image iframeData.elements.push(roomInfo[7]);
+                }
+            }
+        }
+    }
+
     if (iframeData.pathname.toLowerCase() === '/register') {
         if (iframe.document.getElementById('registerusername')) iframeData.elements.push(iframe.document.getElementById('registerusername').value);
     }
