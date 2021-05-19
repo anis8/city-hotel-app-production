@@ -14,7 +14,7 @@ module.exports = {
             details = "Hôtel";
             state = "Joue sur l'hôtel";
             if (data.elements[0] && data.elements[1]) {
-                state = 'Est dans l\'appartement : ' + data.elements[0];
+                state = 'Joue sur l\'hôtel : ' + data.elements[0];
                 buttonLabel = 'Rejoindre l\'appartement';
                 buttonUrl = 'https://www.habbocity.me/room/' + data.elements[1];
             }
