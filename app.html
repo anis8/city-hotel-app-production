@@ -106,9 +106,7 @@
     let iframe = document.getElementById("frame").contentWindow;
     let updateCount = 0;
 
-    ipcRenderer.on("version", (event, data) => {
-        version.innerHTML = data;
-    });
+    ipcRenderer.on("version", (event, data) => version.innerHTML = data);
     ipcRenderer.on("checking-for-update", (event, data) => {
         progression.innerHTML = "mise à jour...";
         updater.style.display = "block";
@@ -167,6 +165,7 @@
         title.innerText = t;
         description.innerHTML = d;
         input.value = '';
+        numberNotif(1);
 
         if (btns.length !== 0) {
             cancel.innerHTML = '<div class="alpha"></div>' + btns[0];
@@ -194,19 +193,11 @@
         alert.style.visibility = "hidden";
         input.style.visibility = "hidden";
     }
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-    });
 
-    zoomIn.addEventListener('click', () => {
-        ipcRenderer.send("zoomIn", "");
-    });
-    zoomReset.addEventListener('click', () => {
-       ipcRenderer.send("zoomReset", "");
-    });
-    zoomOut.addEventListener('click', () => {
-        ipcRenderer.send("zoomOut", "");
-    });
+    form.addEventListener('submit', (e) => e.preventDefault());
+    zoomIn.addEventListener('click', () => ipcRenderer.send("zoomIn", ""));
+    zoomReset.addEventListener('click', () => ipcRenderer.send("zoomReset", ""));
+    zoomOut.addEventListener('click', () => ipcRenderer.send("zoomOut", ""));
     reload.addEventListener('click', () => {
         iframe.location.reload();
         fullScreenInterval = setInterval(fullScreenFunction, 1000);
@@ -222,15 +213,11 @@
             document.getElementById('close-button').style.transform = "none";
         }
     });
-    cache.addEventListener('click', () => {
-        openAlert("Attention...", "Tu souhaites vider ton cache et relancer l'application.", [], false, "clearcache");
-    });
-    cancel.addEventListener('click', () => {
-        closeAlert();
-    });
-    confirm.addEventListener('click', () => {
-        closeAlert();
-    });
+    cache.addEventListener('click', () =>
+        openAlert("Attention...", "Tu souhaites vider ton cache et relancer l'application.", [], false, "clearcache")
+    );
+    cancel.addEventListener('click', () => closeAlert());
+    confirm.addEventListener('click', () => closeAlert());
 
     function discordRpc() {
         if (iframe) {
@@ -247,12 +234,12 @@
         }
     }
 
-    const checkRpc = setInterval(discordRpc, 5000);
+    const checkRpc = setInterval(discordRpc, 15e3);
     const toggleRpc = document.getElementById("toggleRpc");
 
-    toggleRpc.addEventListener('click', () => {
-        openAlert("Attention...", "Tu souhaites activer ou désactiver la Rich Presence Discord. <br/><i>(Tu devras activer l'affichage de jeu dans tes paramètres Discord.)</i>", [], false, "toggleRpc", '', "discordRpc();");
-    });
+    toggleRpc.addEventListener('click', () =>
+        openAlert("Attention...", "Tu souhaites activer ou désactiver la Rich Presence Discord. <br/><i>(Tu devras activer l'affichage de jeu dans tes paramètres Discord.)</i>", [], false, "toggleRpc", '', "discordRpc();")
+    );
 
     let lastHref = "";
     setInterval(() => {
@@ -263,6 +250,40 @@
             }
         }
     }, 3000);
+
+    let notifNb = 0;
+
+    function numberNotif(notiflength) {
+        notifNb += notiflength;
+        ipcRenderer.send('flashFrame', '');
+        ipcRenderer.send('notifIcon', `${notifNb}`);
+    }
+
+    ipcRenderer.on('notifReset', () => notifNb = 0);
+
+    setInterval(() => {
+        if (iframe.document.getElementById('hotelframe')) {
+            const mentions = iframe.document.getElementById('hotelframe').contentWindow.document.querySelectorAll('.notifelement:not(.listened)');
+            if (mentions) {
+                if (mentions.length > 0) {
+                    numberNotif(mentions.length);
+                    mentions.forEach((mention) => {
+                        mention.classList.add('listened');
+                    });
+                }
+            }
+
+            const alerts = iframe.document.getElementById('hotelframe').contentWindow.document.querySelectorAll('#hotel13:not(.listened)');
+            if (alerts) {
+                if (alerts.length > 0) {
+                    numberNotif(alerts.length);
+                    alerts.forEach((alert) => {
+                        alert.classList.add('listened');
+                    });
+                }
+            }
+        }
+    }, 5e3);
 </script>
 </body>
 </html>
