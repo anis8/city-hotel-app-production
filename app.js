@@ -10,6 +10,8 @@ try {
 
     let pluginName;
     let mainWindow;
+    const clientId = '798873369315377163';
+    DiscordRPC.register(clientId);
     let rpc = null;
 
     switch (process.platform) {
@@ -74,6 +76,12 @@ try {
             mainWindow = null;
         });
 
+        mainWindow.on('focus', () => {
+            mainWindow.flashFrame(false);
+            mainWindow.setOverlayIcon(null, '');
+            sendWindow('notifReset', '');
+        });
+
         ///mainWindow.webContents.openDevTools();
 
         await mainWindow.loadURL(url.format({
@@ -107,8 +115,20 @@ try {
                 mainWindow.webContents.setZoomFactor(factor + 0.01);
             }
         });
-        ipcMain.on('zoomReset', () => {
-            mainWindow.webContents.setZoomFactor(1);
+        ipcMain.on('zoomReset', () => mainWindow.webContents.setZoomFactor(1));
+        ipcMain.on('flashFrame', () => {
+            if (!mainWindow.isFocused()) mainWindow.flashFrame(true);
+        });
+        ipcMain.on('notifIcon', (event, data) => {
+            if (!mainWindow.isFocused()) {
+                let badge;
+                if (parseInt(data) < 10) {
+                    badge = path.join(__dirname, `/assets/images/badge-${data}.ico`);
+                } else {
+                    badge = path.join(__dirname, `/assets/images/badge-10.ico`);
+                }
+                mainWindow.setOverlayIcon(badge, `${data} notification(s)`);
+            }
         });
 
         if (process.platform === "darwin") {
@@ -124,33 +144,47 @@ try {
 
             if (checkUrl !== 'habbocity' || url === 'https://www.habbocity.me/discord') {
                 e.preventDefault();
-                if(url === 'https://www.habbocity.me/discord') url = 'https://discord.com/invite/CityFamily';
+                if (url === 'https://www.habbocity.me/discord') url = 'https://discord.com/invite/CityFamily';
                 require('electron').shell.openExternal(url);
             }
         });
 
-        const clientId = '798873369315377163';
         let startRpc = false;
         let startTimestamp;
-        let details = null;
-        let state = null;
-
+        let detailsRpc = null;
+        let stateRpc = null;
         ipcMain.on('toggleRpc', () => {
             if (startRpc === false) {
                 startRpc = true;
-                startTimestamp = new Date();
+                startTimestamp = Date.now();
                 rpc = new DiscordRPC.Client({
                     transport: 'ipc'
                 });
                 rpc.on('ready', () => {
-                    rpc.setActivity({
-                        details,
-                        state,
-                        largeImageKey: 'hclogo',
-                        smallImageKey: 'littleicon',
-                        smallImageText: app.getVersion(),
-                        instance: false,
-                        startTimestamp
+                    rpc.request('SET_ACTIVITY', {
+                        pid: process.pid,
+                        activity: {
+                            details: detailsRpc,
+                            state: stateRpc,
+                            timestamps: {
+                                start: startTimestamp
+                            },
+                            assets: {
+                                large_image: 'hclogo',
+                                small_image: 'littleicon',
+                                small_text: app.getVersion()
+                            },
+                            buttons: [
+                                {
+                                    label: 'Aller sur HabboCity',
+                                    url: 'https://www.habbocity.me'
+                                },
+                                {
+                                    label: 'Rejoindre CityCom',
+                                    url: 'https://discord.gg/cityfamily'
+                                }
+                            ]
+                        }
                     });
                 });
                 rpc.login({clientId});
@@ -165,16 +199,34 @@ try {
 
         ipcMain.on('updateRpc', (event, data) => {
             if (startRpc === true) {
-                details = DiscordUpdate.rpcUpdate(data, app.getVersion())[0];
-                state = DiscordUpdate.rpcUpdate(data, app.getVersion())[1];
-                rpc.setActivity({
-                    details,
-                    state,
-                    largeImageKey: 'hclogo',
-                    smallImageKey: 'littleicon',
-                    smallImageText: app.getVersion(),
-                    instance: false,
-                    startTimestamp
+                detailsRpc = DiscordUpdate.rpcUpdate(data, app.getVersion())[0];
+                stateRpc = DiscordUpdate.rpcUpdate(data, app.getVersion())[1];
+                let btnLabel = DiscordUpdate.rpcUpdate(data, app.getVersion())[2];
+                let btnUrl = DiscordUpdate.rpcUpdate(data, app.getVersion())[3];
+                rpc.request('SET_ACTIVITY', {
+                    pid: process.pid,
+                    activity: {
+                        details: detailsRpc,
+                        state: stateRpc,
+                        timestamps: {
+                            start: startTimestamp
+                        },
+                        assets: {
+                            large_image: 'hclogo',
+                            small_image: 'littleicon',
+                            small_text: app.getVersion()
+                        },
+                        buttons: [
+                            {
+                                label: btnLabel,
+                                url: btnUrl
+                            },
+                            {
+                                label: 'Rejoindre CityCom',
+                                url: 'https://discord.gg/cityfamily'
+                            }
+                        ]
+                    }
                 });
             }
         });
