@@ -117,7 +117,10 @@ try {
         });
         ipcMain.on('zoomReset', () => mainWindow.webContents.setZoomFactor(1));
         ipcMain.on('flashFrame', () => {
-            if (!mainWindow.isFocused()) mainWindow.flashFrame(true);
+            if (!mainWindow.isFocused())
+                mainWindow.flashFrame(true);
+            else
+                mainWindow.flashFrame(false);
         });
         ipcMain.on('notifIcon', (event, data) => {
             if (!mainWindow.isFocused()) {
@@ -128,6 +131,9 @@ try {
                     badge = path.join(__dirname, `/assets/images/badge-10.ico`);
                 }
                 mainWindow.setOverlayIcon(badge, `${data} notification(s)`);
+            } else {
+                mainWindow.setOverlayIcon(null, '');
+                sendWindow('notifReset', '');
             }
         });
 

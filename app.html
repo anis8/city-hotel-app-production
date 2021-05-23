@@ -219,8 +219,19 @@
     cancel.addEventListener('click', () => closeAlert());
     confirm.addEventListener('click', () => closeAlert());
 
+    let checkRpc = false;
+    const toggleRpc = document.getElementById('toggleRpc');
+
     function discordRpc() {
         if (iframe) {
+            if (checkRpc === false) {
+                checkRpc = true;
+                checkRpc = setInterval(discordRpc, 15e3);
+            } else if(checkRpc === true){
+                clearInterval(checkRpc);
+                checkRpc = false;
+            }
+
             let iframeData = {
                 pathname: iframe.location.pathname.replace('.php', ''),
                 title: iframe.document.title,
@@ -233,9 +244,6 @@
             iframeData = {};
         }
     }
-
-    const checkRpc = setInterval(discordRpc, 15e3);
-    const toggleRpc = document.getElementById("toggleRpc");
 
     toggleRpc.addEventListener('click', () =>
         openAlert("Attention...", "Tu souhaites activer ou désactiver la Rich Presence Discord. <br/><i>(Tu devras activer l'affichage de jeu dans tes paramètres Discord.)</i>", [], false, "toggleRpc", '', "discordRpc();")
