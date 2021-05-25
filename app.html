@@ -227,7 +227,7 @@
             if (checkRpc === false) {
                 checkRpc = true;
                 checkRpc = setInterval(discordRpc, 15e3);
-            } else if(checkRpc === true){
+            } else if (checkRpc === true) {
                 clearInterval(checkRpc);
                 checkRpc = false;
             }
@@ -259,39 +259,39 @@
         }
     }, 3000);
 
-    let notifNb = 0;
+    let mentionNb = 0, alertNb = 0, chatNb = 0;
 
-    function numberNotif(notiflength) {
-        notifNb += notiflength;
-        ipcRenderer.send('flashFrame', '');
-        ipcRenderer.send('notifIcon', `${notifNb}`);
+    function numberNotif() {
+        const totalNotif = mentionNb + alertNb + chatNb;
+        if(totalNotif !== 0) {
+            ipcRenderer.send('flashFrame', '');
+            ipcRenderer.send('notifIcon', `${totalNotif}`);
+        } else {
+            ipcRenderer.send('notifIcon', '0');
+        }
     }
-
-    ipcRenderer.on('notifReset', () => notifNb = 0);
 
     setInterval(() => {
         if (iframe.document.getElementById('hotelframe')) {
-            const mentions = iframe.document.getElementById('hotelframe').contentWindow.document.querySelectorAll('.notifelement:not(.listened)');
-            if (mentions) {
-                if (mentions.length > 0) {
-                    numberNotif(mentions.length);
-                    mentions.forEach((mention) => {
-                        mention.classList.add('listened');
-                    });
-                }
-            }
+            const mentions = iframe.document.getElementById('hotelframe').contentWindow.document.querySelectorAll('.notifelement');
+            if (mentions) mentionNb = mentions.length;
 
-            const alerts = iframe.document.getElementById('hotelframe').contentWindow.document.querySelectorAll('#hotel13:not(.listened)');
-            if (alerts) {
-                if (alerts.length > 0) {
-                    numberNotif(alerts.length);
-                    alerts.forEach((alert) => {
-                        alert.classList.add('listened');
-                    });
-                }
+            const alerts = iframe.document.getElementById('hotelframe').contentWindow.document.querySelectorAll('#hotel13');
+            if (alerts) alertNb = alerts.length;
+        }
+
+        const liveChatNotif = iframe.document.querySelector('._2pfkD');
+        if (liveChatNotif) {
+            const liveChatNotifNb = iframe.document.querySelector('.a4n87');
+            if (liveChatNotifNb && liveChatNotifNb.innerText) {
+                chatNb = parseInt(liveChatNotifNb.innerText);
+            } else {
+                chatNb = 0;
             }
         }
-    }, 5e3);
+
+        numberNotif();
+    }, 1500);
 </script>
 </body>
 </html>

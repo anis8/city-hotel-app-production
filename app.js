@@ -76,11 +76,7 @@ try {
             mainWindow = null;
         });
 
-        mainWindow.on('focus', () => {
-            mainWindow.flashFrame(false);
-            mainWindow.setOverlayIcon(null, '');
-            sendWindow('notifReset', '');
-        });
+        mainWindow.on('focus', () => mainWindow.flashFrame(false));
 
         ///mainWindow.webContents.openDevTools();
 
@@ -123,18 +119,15 @@ try {
                 mainWindow.flashFrame(false);
         });
         ipcMain.on('notifIcon', (event, data) => {
-            if (!mainWindow.isFocused()) {
-                let badge;
-                if (parseInt(data) < 10) {
-                    badge = path.join(__dirname, `/assets/images/badge-${data}.ico`);
-                } else {
-                    badge = path.join(__dirname, `/assets/images/badge-10.ico`);
-                }
-                mainWindow.setOverlayIcon(badge, `${data} notification(s)`);
+            let badge;
+            mainWindow.setOverlayIcon(null, '');
+            if (parseInt(data) < 10) {
+                badge = path.join(__dirname, `/assets/images/badge-${data}.ico`);
+                if(parseInt(data) === 0) badge = null;
             } else {
-                mainWindow.setOverlayIcon(null, '');
-                sendWindow('notifReset', '');
+                badge = path.join(__dirname, `/assets/images/badge-10.ico`);
             }
+            mainWindow.setOverlayIcon(badge, `${data} notification(s)`);
         });
 
         if (process.platform === "darwin") {
