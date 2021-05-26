@@ -5,8 +5,14 @@ try {
     const path = require('path');
     const url = require('url');
 
+    const DiscordRPC = require('discord-rpc');
+    const DiscordUpdate = require(path.join(process.resourcesPath, './discord/discord.js'));
+
     let pluginName;
     let mainWindow;
+    const clientId = '798873369315377163';
+    DiscordRPC.register(clientId);
+    let rpc = null;
 
     switch (process.platform) {
         case 'win32':
@@ -70,7 +76,9 @@ try {
             mainWindow = null;
         });
 
-        //mainWindow.webContents.openDevTools();
+        mainWindow.on('focus', () => mainWindow.flashFrame(false));
+
+        ///mainWindow.webContents.openDevTools();
 
         await mainWindow.loadURL(url.format({
             pathname: path.join(__dirname, `app.html`),
@@ -90,7 +98,6 @@ try {
                 mainWindow.setFullScreen(false);
             else
                 mainWindow.setFullScreen(true);
-
         });
         ipcMain.on('zoomOut', () => {
             let factor = mainWindow.webContents.getZoomFactor();
@@ -104,6 +111,24 @@ try {
                 mainWindow.webContents.setZoomFactor(factor + 0.01);
             }
         });
+        ipcMain.on('zoomReset', () => mainWindow.webContents.setZoomFactor(1));
+        ipcMain.on('flashFrame', () => {
+            if (!mainWindow.isFocused())
+                mainWindow.flashFrame(true);
+            else
+                mainWindow.flashFrame(false);
+        });
+        ipcMain.on('notifIcon', (event, data) => {
+            let badge;
+            mainWindow.setOverlayIcon(null, '');
+            if (parseInt(data) < 10) {
+                badge = path.join(__dirname, `/assets/images/badge-${data}.ico`);
+                if(parseInt(data) === 0) badge = null;
+            } else {
+                badge = path.join(__dirname, `/assets/images/badge-10.ico`);
+            }
+            mainWindow.setOverlayIcon(badge, `${data} notification(s)`);
+        });
 
         if (process.platform === "darwin") {
             app.dock.setIcon(nativeImage.createFromPath(
@@ -116,12 +141,98 @@ try {
             let checkUrl = splitUrl[0];
             if (url.replace('https://', '').startsWith('www.') || url.replace('https://', '').startsWith('swf.')) checkUrl = splitUrl[1];
 
-            if (checkUrl !== 'habbocity') {
+            if (checkUrl !== 'habbocity' || url === 'https://www.habbocity.me/discord') {
                 e.preventDefault();
+                if (url === 'https://www.habbocity.me/discord') url = 'https://discord.com/invite/CityFamily';
                 require('electron').shell.openExternal(url);
             }
         });
-    };
+
+        let startRpc = false;
+        let startTimestamp;
+        let detailsRpc = null;
+        let stateRpc = null;
+        ipcMain.on('toggleRpc', () => {
+            if (startRpc === false) {
+                startRpc = true;
+                startTimestamp = Date.now();
+                rpc = new DiscordRPC.Client({
+                    transport: 'ipc'
+                });
+                rpc.on('ready', () => {
+                    rpc.request('SET_ACTIVITY', {
+                        pid: process.pid,
+                        activity: {
+                            details: detailsRpc,
+                            state: stateRpc,
+                            timestamps: {
+                                start: startTimestamp
+                            },
+                            assets: {
+                                large_image: 'hclogo',
+                                small_image: 'littleicon',
+                                small_text: app.getVersion()
+                            },
+                            buttons: [
+                                {
+                                    label: 'Aller sur HabboCity',
+                                    url: 'https://www.habbocity.me'
+                                },
+                                {
+                                    label: 'Rejoindre CityCom',
+                                    url: 'https://discord.gg/cityfamily'
+                                }
+                            ]
+                        }
+                    });
+                });
+                rpc.login({clientId});
+            } else if (startRpc === true) {
+                startRpc = false;
+                startTimestamp = null;
+                rpc.clearActivity();
+                rpc.destroy();
+                rpc = null;
+            }
+        });
+
+        ipcMain.on('updateRpc', (event, data) => {
+            if (startRpc === true) {
+                detailsRpc = DiscordUpdate.rpcUpdate(data, app.getVersion())[0];
+                stateRpc = DiscordUpdate.rpcUpdate(data, app.getVersion())[1];
+                let btnLabel = DiscordUpdate.rpcUpdate(data, app.getVersion())[2];
+                let btnUrl = DiscordUpdate.rpcUpdate(data, app.getVersion())[3];
+                rpc.request('SET_ACTIVITY', {
+                    pid: process.pid,
+                    activity: {
+                        details: detailsRpc,
+                        state: stateRpc,
+                        timestamps: {
+                            start: startTimestamp
+                        },
+                        assets: {
+                            large_image: 'hclogo',
+                            small_image: 'littleicon',
+                            small_text: app.getVersion()
+                        },
+                        buttons: [
+                            {
+                                label: btnLabel,
+                                url: btnUrl
+                            },
+                            {
+                                label: 'Rejoindre CityCom',
+                                url: 'https://discord.gg/cityfamily'
+                            }
+                        ]
+                    }
+                });
+            }
+        });
+    }
+
+    let appStart = false;
+    let checkForUpdate = null;
 
     app.on('window-all-closed', () => {
         if (process.platform !== 'darwin') {
@@ -130,7 +241,14 @@ try {
             app.quit();
         }
     });
+
     app.on('before-quit', () => {
+        if (rpc !== null) {
+            rpc.clearActivity();
+            rpc.destroy();
+            rpc = null;
+        }
+        if (checkForUpdate !== null) clearInterval(checkForUpdate);
         mainWindow.removeAllListeners('close');
         mainWindow.close();
     });
@@ -146,13 +264,21 @@ try {
     });
 
     autoUpdater.on('checking-for-update', () => {
-        sendWindow('checking-for-update', '');
+        if (appStart === false) sendWindow('checking-for-update', path.join(process.resourcesPath, './discord/iframeData.js'));
     });
     autoUpdater.on('update-available', () => {
-        sendWindow('update-available', '');
+        if (appStart === false) {
+            sendWindow('update-available', '');
+        } else if (appStart === true) {
+            clearInterval(checkForUpdate);
+        }
     });
     autoUpdater.on('update-not-available', () => {
         sendWindow('update-not-available', '');
+        appStart = true;
+        checkForUpdate = setInterval(async () => {
+            await autoUpdater.checkForUpdates();
+        }, 900000);
     });
     autoUpdater.on('error', (err) => {
         sendWindow('error', 'Error: ' + err);
@@ -162,15 +288,22 @@ try {
             speed: d.bytesPerSecond,
             percent: d.percent,
             transferred: d.transferred,
-            total: d.total
+            total: d.total,
+            inBack: appStart
         });
+        mainWindow.setProgressBar(d.percent / 100);
     });
     autoUpdater.on('update-downloaded', () => {
-        sendWindow('update-downloaded', 'Update downloaded');
-        autoUpdater.quitAndInstall();
+        if (appStart === false) {
+            sendWindow('update-downloaded', 'Update downloaded');
+            autoUpdater.quitAndInstall();
+        } else if (appStart === true) {
+            sendWindow('askForUpdate', '');
+            ipcMain.on('responseForUpdate', (e, response) => {
+                if (response === true) autoUpdater.quitAndInstall();
+            });
+        }
     });
-
-
 } catch (e) {
     app.exit(0);
     app.quit();

@@ -1,9 +1,9 @@
 {
   "name": "city",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "productName": "HabboCity",
   "main": "app.js",
-  "description": "City: Créez votre avatar, décorez votre appartement ! Tchattez avec vos amis.",
+  "description": "HabboCity: Créez votre avatar, décorez votre appartement ! Tchattez avec vos amis.",
   "homepage": "https://habbocity.me",
   "author": {
     "name": "City Games",
@@ -15,6 +15,7 @@
     "build": "electron-builder --win"
   },
   "devDependencies": {
+    "discord-rpc": "^3.1.4",
     "dotenv": "^8.2.0",
     "electron": "11.1.0",
     "electron-builder": "22.9.1",
@@ -22,13 +23,15 @@
   },
   "dependencies": {
     "electron-updater": "4.3.5",
+    "discord-rpc": "^3.1.4",
     "node-machine-id": "^1.1.12"
   },
   "build": {
     "appId": "me.habbocity.CityApp",
     "files": "!build/SignHook.js",
     "extraResources": [
-      "./flash/**"
+      "./flash/**",
+      "./discord/**"
     ],
     "directories": {
       "buildResources": "resources",
@@ -55,7 +58,7 @@
     "nsis": {
       "installerIcon": "icon.ico",
       "uninstallerIcon": "icon.ico",
-      "uninstallDisplayName": "City",
+      "uninstallDisplayName": "HabboCity",
       "oneClick": true,
       "perMachine": false,
       "artifactName": "City-${version}.${ext}"

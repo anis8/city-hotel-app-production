@@ -44,7 +44,7 @@
     bottom: 15px
 }
 
-.alert .box .btns .button {
+.alert .box form .btns .button {
     cursor: pointer;
     float: right;
     position: relative;
@@ -60,11 +60,11 @@
     background: #32bf1a;
 }
 
-.alert .box .btns .button:hover {
+.alert .box form .btns .button:hover {
     opacity: 0.8;
 }
 
-.alert .box .btns .button .alpha {
+.alert .box form .btns .button .alpha {
     position: absolute;
     left: 8px;
     top: 5px;

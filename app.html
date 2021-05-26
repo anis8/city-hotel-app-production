@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>City</title>
+    <title>HabboCity</title>
     <link rel="stylesheet" type="text/css" href="assets/styles/app.css">
     <link rel="stylesheet" type="text/css" href="assets/styles/updater.css">
     <link rel="stylesheet" type="text/css" href="assets/styles/buttons.css">
@@ -10,19 +10,21 @@
 <body>
 <div id="alert" class="alert">
     <div class="box">
-        <div id="title" class="title">Attention...</div>
-        <div id="description" class="description">Tu souhaites vider ton cache et relancer l'application.</div>
-        <input id="input" placeholder="Mon text"/>
-        <div class="btns">
-            <div id="cancel" class="button" style="float:left;background: #ed1c24;">
-                <div class="alpha"></div>
-                Annuler
+        <form id="form">
+            <div id="title" class="title">Attention...</div>
+            <div id="description" class="description">Tu souhaites vider ton cache et relancer l'application.</div>
+            <input type="text" id="input" placeholder="Mon texte..."/>
+            <div class="btns">
+                <div id="cancel" class="button" style="float:left;background: #ed1c24;">
+                    <div class="alpha"></div>
+                    Annuler
+                </div>
+                <button id="confirm" style="font-family: 'Ubuntu', sans-serif;" class="button" type="submit">
+                    <div class="alpha"></div>
+                    Confirmer
+                </button>
             </div>
-            <div id="confirm" class="button">
-                <div class="alpha"></div>
-                Confirmer
-            </div>
-        </div>
+        </form>
     </div>
 </div>
 <div id="updater" class="updater">
@@ -67,6 +69,13 @@
             Zoom -1%
         </div>
     </div>
+    <div id="zoomReset" class="button">
+        <div class="icon reset"></div>
+        <div class="tooltip">
+            <div class="arrow"></div>
+            Réinitialiser le Zoom
+        </div>
+    </div>
     <div id="zoomIn" class="button">
         <div class="icon in"></div>
         <div class="tooltip">
@@ -77,20 +86,27 @@
     <div id="reload" class="button">
         <div class="icon reload"></div>
         <div class="tooltip">
-            Recharger
+            Recharger la page
+        </div>
+    </div>
+    <div id="toggleRpc" class="button" style="margin-bottom: 6px">
+        <div class="icon rpc"></div>
+        <div class="tooltip">
+            Rich Presence Discord
         </div>
     </div>
 </div>
 <div id="messages"></div>
+<script src="../discord/iframeData.js" type="text/javascript"></script>
 <script>
     let ipcRenderer = window.ipcRenderer;
     let updater = document.getElementById("updater");
     let progression = document.getElementById("progression");
     let version = document.getElementById("version");
+    let iframe = document.getElementById("frame").contentWindow;
+    let updateCount = 0;
 
-    ipcRenderer.on("version", (event, data) => {
-        version.innerHTML = data;
-    });
+    ipcRenderer.on("version", (event, data) => version.innerHTML = data);
     ipcRenderer.on("checking-for-update", (event, data) => {
         progression.innerHTML = "mise à jour...";
         updater.style.display = "block";
@@ -101,13 +117,28 @@
     });
     ipcRenderer.on("download-progress", (event, data) => {
         progression.innerHTML = Math.round(data['percent']) + "%";
+        if (data['inBack'] === true && updateCount === 0) {
+            iframe.notify('Une mise à jour de l\'application est en cours de téléchargement en arrière-plan...');
+            updateCount = 1;
+        }
     });
-
+    ipcRenderer.on("askForUpdate", () => {
+        if (iframe.location.pathname.replace('.php', '') !== '/hotel') {
+            openAlert('Mise à jour', 'Une mise à jour de l\'application est disponible !', ['Plus tard', 'Installer'], false, "responseForUpdate", true);
+        } else {
+            const updateHotel = setInterval(() => {
+                if (iframe.location.pathname.replace('.php', '') !== '/hotel') {
+                    openAlert('Mise à jour', 'Une mise à jour de l\'application est disponible !', ['Plus tard', 'Installer'], false, "responseForUpdate", true);
+                    clearInterval(updateHotel);
+                }
+            }, 30000);
+        }
+    });
 
     let isOpenButtons = true;
     let zoomIn = document.getElementById("zoomIn");
+    let zoomReset = document.getElementById("zoomReset");
     let zoomOut = document.getElementById("zoomOut");
-    let iframe = document.getElementById("frame").contentWindow;
     let reload = document.getElementById("reload");
     let close = document.getElementById("close");
     let cache = document.getElementById("cache");
@@ -127,36 +158,46 @@
     };
     let fullScreenInterval = setInterval(fullScreenFunction, 1000);
 
-    let openAlert = (t, d, i, ipc) => {
+    let openAlert = (t, d, btns, i, ipc, ipcArgs, next) => {
         let title = document.getElementById("title");
         let description = document.getElementById("description");
-
         alert.style.visibility = "visible";
         title.innerText = t;
-        description.innerText = d;
+        description.innerHTML = d;
+        input.value = '';
+        numberNotif(1);
 
-        if (i) {
+        if (btns.length !== 0) {
+            cancel.innerHTML = '<div class="alpha"></div>' + btns[0];
+            confirm.innerHTML = '<div class="alpha"></div>' + btns[1];
+        } else {
+            cancel.innerHTML = '<div class="alpha"></div>Annuler';
+            confirm.innerHTML = '<div class="alpha"></div>Confirmer';
+        }
+
+        if (i === true) {
             input.style.visibility = "visible";
         } else {
             input.style.visibility = "hidden";
         }
 
         if (ipc) {
-            confirm.setAttribute('onClick', 'ipcRenderer.send("' + ipc + '", "");\n');
+            confirm.setAttribute('onClick', 'ipcRenderer.send("' + ipc + '", ' + ipcArgs + ');\n');
+            if (next) {
+                confirm.setAttribute('onClick', 'ipcRenderer.send("' + ipc + '", ' + ipcArgs + ');' + next + '\n');
+            }
         }
     }
+
     let closeAlert = () => {
         alert.style.visibility = "hidden";
         input.style.visibility = "hidden";
-        input.value = '';
     }
 
-    zoomIn.addEventListener('click', () => {
-        ipcRenderer.send("zoomIn", "");
-    });
-    zoomOut.addEventListener('click', () => {
-        ipcRenderer.send("zoomOut", "");
-    });
+    form.addEventListener('submit', (e) => e.preventDefault());
+    zoomIn.addEventListener('click', () => ipcRenderer.send("zoomIn", ""));
+    zoomReset.addEventListener('click', () => ipcRenderer.send("zoomReset", ""));
+    zoomOut.addEventListener('click', () => ipcRenderer.send("zoomOut", ""));
     reload.addEventListener('click', () => {
         iframe.location.reload();
         fullScreenInterval = setInterval(fullScreenFunction, 1000);
@@ -172,15 +213,41 @@
             document.getElementById('close-button').style.transform = "none";
         }
     });
-    cache.addEventListener('click', () => {
-        openAlert("Attention...", "Tu souhaites vider ton cache et relancer l'application.", false, "clearcache");
-    });
-    cancel.addEventListener('click', () => {
-        closeAlert();
-    });
-    confirm.addEventListener('click', () => {
-        closeAlert();
-    })
+    cache.addEventListener('click', () =>
+        openAlert("Attention...", "Tu souhaites vider ton cache et relancer l'application.", [], false, "clearcache")
+    );
+    cancel.addEventListener('click', () => closeAlert());
+    confirm.addEventListener('click', () => closeAlert());
+
+    let checkRpc = false;
+    const toggleRpc = document.getElementById('toggleRpc');
+
+    function discordRpc() {
+        if (iframe) {
+            if (checkRpc === false) {
+                checkRpc = true;
+                checkRpc = setInterval(discordRpc, 15e3);
+            } else if (checkRpc === true) {
+                clearInterval(checkRpc);
+                checkRpc = false;
+            }
+
+            let iframeData = {
+                pathname: iframe.location.pathname.replace('.php', ''),
+                title: iframe.document.title,
+                elements: []
+            };
+
+            updateIframeData(iframeData, iframe, updater.style.display);
+
+            ipcRenderer.send('updateRpc', iframeData);
+            iframeData = {};
+        }
+    }
+
+    toggleRpc.addEventListener('click', () =>
+        openAlert("Attention...", "Tu souhaites activer ou désactiver la Rich Presence Discord. <br/><i>(Tu devras activer l'affichage de jeu dans tes paramètres Discord.)</i>", [], false, "toggleRpc", '', "discordRpc();")
+    );
 
     let lastHref = "";
     setInterval(() => {
@@ -191,6 +258,40 @@
             }
         }
     }, 3000);
+
+    let mentionNb = 0, alertNb = 0, chatNb = 0;
+
+    function numberNotif() {
+        const totalNotif = mentionNb + alertNb + chatNb;
+        if(totalNotif !== 0) {
+            ipcRenderer.send('flashFrame', '');
+            ipcRenderer.send('notifIcon', `${totalNotif}`);
+        } else {
+            ipcRenderer.send('notifIcon', '0');
+        }
+    }
+
+    setInterval(() => {
+        if (iframe.document.getElementById('hotelframe')) {
+            const mentions = iframe.document.getElementById('hotelframe').contentWindow.document.querySelectorAll('.notifelement');
+            if (mentions) mentionNb = mentions.length;
+
+            const alerts = iframe.document.getElementById('hotelframe').contentWindow.document.querySelectorAll('#hotel13');
+            if (alerts) alertNb = alerts.length;
+        }
+
+        const liveChatNotif = iframe.document.querySelector('._2pfkD');
+        if (liveChatNotif) {
+            const liveChatNotifNb = iframe.document.querySelector('.a4n87');
+            if (liveChatNotifNb && liveChatNotifNb.innerText) {
+                chatNb = parseInt(liveChatNotifNb.innerText);
+            } else {
+                chatNb = 0;
+            }
+        }
+
+        numberNotif();
+    }, 1500);
 </script>
 </body>
 </html>

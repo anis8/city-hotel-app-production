@@ -83,9 +83,12 @@
     background: url('../images/screen.png');
 }
 
-
 .buttons .button .reload {
     background: url('../images/reload.png');
+}
+
+.buttons .button .rpc {
+    background: url('../images/discord.png');
 }
 
 .buttons .button .cache {
@@ -94,6 +97,10 @@
 
 .buttons .button .in {
     background: url('../images/in.png');
+}
+
+.buttons .button .reset {
+    background: url('../images/reset.png');
 }
 
 .buttons .button:hover {
