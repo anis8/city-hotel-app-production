@@ -6,6 +6,8 @@
     right: 0;
     bottom: 100px;
     width: 50px;
+    max-width: 50px;
+    transition: .1s;
 }
 
 #close {
