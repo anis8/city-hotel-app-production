@@ -1,4 +1,4 @@
-const {app, nativeImage, BrowserWindow, ipcMain} = require('electron');
+const {app, nativeImage, BrowserWindow, ipcMain, globalShortcut} = require('electron');
 try {
     const {autoUpdater} = require("electron-updater");
 
@@ -78,7 +78,7 @@ try {
 
         mainWindow.on('focus', () => mainWindow.flashFrame(false));
 
-        ///mainWindow.webContents.openDevTools();
+        mainWindow.webContents.openDevTools();
 
         await mainWindow.loadURL(url.format({
             pathname: path.join(__dirname, `app.html`),
@@ -254,6 +254,7 @@ try {
     });
 
     app.on('ready', async () => {
+        await globalShortcut.register('CommandOrControl+Alt+D', () => sendWindow('shortcutDiscord', ''));
         await createWindow();
         await autoUpdater.checkForUpdatesAndNotify();
     });
@@ -278,7 +279,7 @@ try {
         appStart = true;
         checkForUpdate = setInterval(async () => {
             await autoUpdater.checkForUpdates();
-        }, 900000);
+        }, 300000);
     });
     autoUpdater.on('error', (err) => {
         sendWindow('error', 'Error: ' + err);
