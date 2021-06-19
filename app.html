@@ -89,12 +89,6 @@
             Recharger la page
         </div>
     </div>
-    <div id="toggleRpc" class="button" style="margin-bottom: 6px">
-        <div class="icon rpc"></div>
-        <div class="tooltip">
-            Rich Presence Discord
-        </div>
-    </div>
 </div>
 <div id="messages"></div>
 <script src="../discord/iframeData.js" type="text/javascript"></script>
@@ -220,7 +214,6 @@
     confirm.addEventListener('click', () => closeAlert());
 
     let checkRpc = false;
-    const toggleRpc = document.getElementById('toggleRpc');
 
     function discordRpc() {
         if (iframe) {
@@ -246,7 +239,6 @@
     }
 
     ipcRenderer.on('shortcutDiscord', () => {
-        console.log('test');
         if(checkRpc === false) {
             openAlert("Attention...", "Tu souhaites activer la Rich Presence Discord. <br/><br/><i>(Tu devras activer l'option : <b>\"Affiche l'activité en cours en tant que message de statut.\"</b> dans tes paramètres Discord dans : <b>\"Statut d'activité\"</b>.)</i>", [], false, "toggleRpc", '', "discordRpc();")
         } else {

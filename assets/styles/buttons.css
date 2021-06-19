@@ -45,6 +45,10 @@
     border-radius: 100%;
 }
 
+.buttons .button:last-child {
+    margin-bottom: 6px;
+}
+
 .buttons .button:hover .tooltip {
     display: block;
 }
@@ -87,10 +91,6 @@
 
 .buttons .button .reload {
     background: url('../images/reload.png');
-}
-
-.buttons .button .rpc {
-    background: url('../images/discord.png');
 }
 
 .buttons .button .cache {
