@@ -78,7 +78,7 @@ try {
 
         mainWindow.on('focus', () => mainWindow.flashFrame(false));
 
-        mainWindow.webContents.openDevTools();
+        ///mainWindow.webContents.openDevTools();
 
         await mainWindow.loadURL(url.format({
             pathname: path.join(__dirname, `app.html`),
