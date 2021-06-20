@@ -280,15 +280,17 @@
         const liveChat = iframe.document.querySelector('[data-s="launcher"]');
         if (liveChat) {
             const liveChatNotif = iframe.document.querySelector('[data-s="launcher-notifications"]');
-            if (liveChatNotif && liveChatNotif.innerText) {
+            if (liveChatNotif && liveChatNotif.innerText !== '') {
                 chatNb = parseInt(liveChatNotif.innerText);
             } else {
                 chatNb = 0;
             }
+        } else {
+            chatNb = 0;
         }
 
         numberNotif();
-    }, 15e2);
+    }, 1e3);
 </script>
 </body>
 </html>
