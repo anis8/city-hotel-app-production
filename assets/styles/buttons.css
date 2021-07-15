@@ -6,6 +6,8 @@
     right: 0;
     bottom: 100px;
     width: 50px;
+    max-width: 50px;
+    transition: .1s;
 }
 
 #close {
@@ -41,6 +43,10 @@
     width: 36px;
     cursor: pointer;
     border-radius: 100%;
+}
+
+.buttons .button:last-child {
+    margin-bottom: 6px;
 }
 
 .buttons .button:hover .tooltip {
@@ -85,10 +91,6 @@
 
 .buttons .button .reload {
     background: url('../images/reload.png');
-}
-
-.buttons .button .rpc {
-    background: url('../images/discord.png');
 }
 
 .buttons .button .cache {

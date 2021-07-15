@@ -89,12 +89,6 @@
             Recharger la page
         </div>
     </div>
-    <div id="toggleRpc" class="button" style="margin-bottom: 6px">
-        <div class="icon rpc"></div>
-        <div class="tooltip">
-            Rich Presence Discord
-        </div>
-    </div>
 </div>
 <div id="messages"></div>
 <script src="../discord/iframeData.js" type="text/javascript"></script>
@@ -131,7 +125,7 @@
                     openAlert('Mise à jour', 'Une mise à jour de l\'application est disponible !', ['Plus tard', 'Installer'], false, "responseForUpdate", true);
                     clearInterval(updateHotel);
                 }
-            }, 30000);
+            }, 15e3);
         }
     });
 
@@ -205,11 +199,11 @@
     close.addEventListener('click', () => {
         if (!isOpenButtons) {
             isOpenButtons = true;
-            document.querySelector('.buttons').style.width = "50px";
+            document.querySelector('.buttons').style.maxWidth = "50px";
             document.getElementById('close-button').style.transform = "scaleX(-1)";
         } else {
             isOpenButtons = false;
-            document.querySelector('.buttons').style.width = "0px";
+            document.querySelector('.buttons').style.maxWidth = "0px";
             document.getElementById('close-button').style.transform = "none";
         }
     });
@@ -220,14 +214,13 @@
     confirm.addEventListener('click', () => closeAlert());
 
     let checkRpc = false;
-    const toggleRpc = document.getElementById('toggleRpc');
 
     function discordRpc() {
         if (iframe) {
             if (checkRpc === false) {
                 checkRpc = true;
                 checkRpc = setInterval(discordRpc, 15e3);
-            } else if (checkRpc === true) {
+            } else {
                 clearInterval(checkRpc);
                 checkRpc = false;
             }
@@ -245,9 +238,13 @@
         }
     }
 
-    toggleRpc.addEventListener('click', () =>
-        openAlert("Attention...", "Tu souhaites activer ou désactiver la Rich Presence Discord. <br/><i>(Tu devras activer l'affichage de jeu dans tes paramètres Discord.)</i>", [], false, "toggleRpc", '', "discordRpc();")
-    );
+    ipcRenderer.on('shortcutDiscord', () => {
+        if(checkRpc === false) {
+            openAlert("Attention...", "Tu souhaites activer la Rich Presence Discord. <br/><br/><i>(Tu devras activer l'option : <b>\"Affiche l'activité en cours en tant que message de statut.\"</b> dans tes paramètres Discord dans : <b>\"Statut d'activité\"</b>.)</i>", [], false, "toggleRpc", '', "discordRpc();")
+        } else {
+            openAlert("Attention...", "Tu souhaites désactiver la Rich Presence Discord.", [], false, "toggleRpc", '', "discordRpc();")
+        }
+    });
 
     let lastHref = "";
     setInterval(() => {
@@ -257,7 +254,7 @@
                 lastHref = iframe.window.location.href;
             }
         }
-    }, 3000);
+    }, 3e3);
 
     let mentionNb = 0, alertNb = 0, chatNb = 0;
 
@@ -280,18 +277,20 @@
             if (alerts) alertNb = alerts.length;
         }
 
-        const liveChatNotif = iframe.document.querySelector('._2pfkD');
-        if (liveChatNotif) {
-            const liveChatNotifNb = iframe.document.querySelector('.a4n87');
-            if (liveChatNotifNb && liveChatNotifNb.innerText) {
-                chatNb = parseInt(liveChatNotifNb.innerText);
+        const liveChat = iframe.document.querySelector('[data-s="launcher"]');
+        if (liveChat) {
+            const liveChatNotif = iframe.document.querySelector('[data-s="launcher-notifications"]');
+            if (liveChatNotif && liveChatNotif.innerText !== '') {
+                chatNb = parseInt(liveChatNotif.innerText);
             } else {
                 chatNb = 0;
             }
+        } else {
+            chatNb = 0;
         }
 
         numberNotif();
-    }, 1500);
+    }, 1e3);
 </script>
 </body>
 </html>
