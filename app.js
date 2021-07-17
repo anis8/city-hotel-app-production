@@ -1,15 +1,15 @@
 const {app, nativeImage, BrowserWindow, ipcMain, globalShortcut} = require('electron');
 try {
-    const {autoUpdater} = require("electron-updater");
+    const {autoUpdater} = require('electron-updater');
 
     const path = require('path');
     const url = require('url');
 
-    const DiscordRPC = require('discord-rpc');
-    const DiscordUpdate = require(path.join(process.resourcesPath, './discord/discord.js'));
-
     let pluginName;
     let mainWindow;
+
+    const DiscordRPC = require('discord-rpc');
+    const DiscordUpdate = require(path.join(process.resourcesPath, './discord/discord.js'));
     const clientId = '798873369315377163';
     DiscordRPC.register(clientId);
     let rpc = null;
@@ -48,12 +48,10 @@ try {
     app.commandLine.appendSwitch('disable-site-isolation-trials');
     //app.commandLine.appendSwitch('no-sandbox');
 
-
     let sendWindow = (identifier, message) => {
         mainWindow.send(identifier, message);
     };
     let createWindow = async () => {
-
         mainWindow = new BrowserWindow({
             title: "HabboCity",
             icon: path.join(__dirname, '/icon.png'),
@@ -72,9 +70,7 @@ try {
         mainWindow.maximize();
         mainWindow.show();
         mainWindow.setMenu(null);
-        mainWindow.on('closed', () => {
-            mainWindow = null;
-        });
+        mainWindow.on('closed', () => mainWindow = null);
 
         mainWindow.on('focus', () => mainWindow.flashFrame(false));
 
@@ -94,29 +90,19 @@ try {
             app.exit();
         });
         ipcMain.on('fullscreen', () => {
-            if (mainWindow.isFullScreen())
-                mainWindow.setFullScreen(false);
-            else
-                mainWindow.setFullScreen(true);
+            mainWindow.isFullScreen() ? mainWindow.setFullScreen(false) : mainWindow.setFullScreen(true);
         });
         ipcMain.on('zoomOut', () => {
             let factor = mainWindow.webContents.getZoomFactor();
-            if (factor > 0.3) {
-                mainWindow.webContents.setZoomFactor(factor - 0.01);
-            }
+            if (factor > 0.3) mainWindow.webContents.setZoomFactor(factor - 0.01);
         });
         ipcMain.on('zoomIn', () => {
             let factor = mainWindow.webContents.getZoomFactor();
-            if (factor < 3) {
-                mainWindow.webContents.setZoomFactor(factor + 0.01);
-            }
+            if (factor < 3) mainWindow.webContents.setZoomFactor(factor + 0.01);
         });
         ipcMain.on('zoomReset', () => mainWindow.webContents.setZoomFactor(1));
         ipcMain.on('flashFrame', () => {
-            if (!mainWindow.isFocused())
-                mainWindow.flashFrame(true);
-            else
-                mainWindow.flashFrame(false);
+            mainWindow.isFocused() ? mainWindow.flashFrame(false) : mainWindow.flashFrame(true);
         });
         ipcMain.on('notifIcon', (event, data) => {
             let badge;
@@ -259,31 +245,21 @@ try {
         await autoUpdater.checkForUpdatesAndNotify();
     });
     app.on('activate', async () => {
-        if (mainWindow === null) {
-            await createWindow();
-        }
+        if (mainWindow === null) await createWindow();
     });
 
     autoUpdater.on('checking-for-update', () => {
-        if (appStart === false) sendWindow('checking-for-update', path.join(process.resourcesPath, './discord/iframeData.js'));
+        if (appStart === false) sendWindow('checking-for-update', '');
     });
     autoUpdater.on('update-available', () => {
-        if (appStart === false) {
-            sendWindow('update-available', '');
-        } else if (appStart === true) {
-            clearInterval(checkForUpdate);
-        }
+        appStart ? sendWindow('update-available', '') : clearInterval(checkForUpdate);
     });
     autoUpdater.on('update-not-available', () => {
         sendWindow('update-not-available', '');
         appStart = true;
-        checkForUpdate = setInterval(async () => {
-            await autoUpdater.checkForUpdates();
-        }, 300000);
+        checkForUpdate = setInterval(async () => await autoUpdater.checkForUpdates(),3e5);
     });
-    autoUpdater.on('error', (err) => {
-        sendWindow('error', 'Error: ' + err);
-    });
+    autoUpdater.on('error', (err) => sendWindow('error', 'Error: ' + err));
     autoUpdater.on('download-progress', (d) => {
         sendWindow('download-progress', {
             speed: d.bytesPerSecond,
