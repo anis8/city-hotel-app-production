@@ -144,13 +144,11 @@
 
     let fullScreenFunction = () => {
         if (iframe.location.href === 'https://www.habbocity.me/hotel' && iframe.document.getElementById('hotel1')) {
-            iframe.document.getElementById('hotel1').addEventListener('click', () => {
-                ipcRenderer.send("fullscreen", "");
-            });
+            iframe.document.getElementById('hotel1').addEventListener('click', () => ipcRenderer.send("fullscreen", ""));
             clearInterval(fullScreenInterval);
         }
     };
-    let fullScreenInterval = setInterval(fullScreenFunction, 1000);
+    let fullScreenInterval = setInterval(fullScreenFunction, 1e3);
 
     let openAlert = (t, d, btns, i, ipc, ipcArgs, next) => {
         let title = document.getElementById("title");
@@ -159,7 +157,6 @@
         title.innerText = t;
         description.innerHTML = d;
         input.value = '';
-        numberNotif(1);
 
         if (btns.length !== 0) {
             cancel.innerHTML = '<div class="alpha"></div>' + btns[0];
@@ -194,7 +191,7 @@
     zoomOut.addEventListener('click', () => ipcRenderer.send("zoomOut", ""));
     reload.addEventListener('click', () => {
         iframe.location.reload();
-        fullScreenInterval = setInterval(fullScreenFunction, 1000);
+        fullScreenInterval = setInterval(fullScreenFunction, 1e3);
     });
     close.addEventListener('click', () => {
         if (!isOpenButtons) {
@@ -213,16 +210,16 @@
     cancel.addEventListener('click', () => closeAlert());
     confirm.addEventListener('click', () => closeAlert());
 
-    let checkRpc = false;
-
+    let checkRpc;
+    let statRpc = false;
     function discordRpc() {
         if (iframe) {
-            if (checkRpc === false) {
-                checkRpc = true;
+            if (statRpc === false) {
+                statRpc = true;
                 checkRpc = setInterval(discordRpc, 15e3);
-            } else {
+            } else if (statRpc === true) {
                 clearInterval(checkRpc);
-                checkRpc = false;
+                statRpc = false;
             }
 
             let iframeData = {
@@ -239,9 +236,9 @@
     }
 
     ipcRenderer.on('shortcutDiscord', () => {
-        if(checkRpc === false) {
+        if(statRpc === false) {
             openAlert("Attention...", "Tu souhaites activer la Rich Presence Discord. <br/><br/><i>(Tu devras activer l'option : <b>\"Affiche l'activité en cours en tant que message de statut.\"</b> dans tes paramètres Discord dans : <b>\"Statut d'activité\"</b>.)</i>", [], false, "toggleRpc", '', "discordRpc();")
-        } else {
+        } else if(statRpc === true) {
             openAlert("Attention...", "Tu souhaites désactiver la Rich Presence Discord.", [], false, "toggleRpc", '', "discordRpc();")
         }
     });
@@ -257,7 +254,6 @@
     }, 3e3);
 
     let mentionNb = 0, alertNb = 0, chatNb = 0;
-
     function numberNotif() {
         const totalNotif = mentionNb + alertNb + chatNb;
         if(totalNotif !== 0) {
@@ -288,7 +284,6 @@
         } else {
             chatNb = 0;
         }
-
         numberNotif();
     }, 1e3);
 </script>
