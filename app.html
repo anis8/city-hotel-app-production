@@ -114,7 +114,7 @@
     });
     ipcRenderer.on("askForUpdate", () => {
         if (iframe.location.pathname.replace('.php', '') !== '/hotel') {
-            openAlert('Mise à jour', 'Une mise à jour est prête à être installée ! <br><br><b><i>(Si vous choisissez "Plus tard" : la mise à jour sera installée à la fermeture de l\'application ou à sa prochaine ouverture.)</i></b>', ['Plus tard', 'Fermer et installer'], false, "responseForUpdate", true);
+            openAlert('Mise à jour', 'Une mise à jour est prête à être installée ! <br><br><i>(Si vous choisissez <b>"Plus tard"</b> la mise à jour sera installée à la <b>fermeture de l\'application ou à sa prochaine ouverture</b>.)</i>', ['Plus tard', 'Fermer et installer'], false, "responseForUpdate", true);
         } else {
             const updateHotel = setInterval(() => {
                 if (iframe.location.pathname.replace('.php', '') !== '/hotel') {
