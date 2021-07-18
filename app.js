@@ -252,7 +252,7 @@ try {
         if (appStart === false) sendWindow('checking-for-update', '');
     });
     autoUpdater.on('update-available', () => {
-        appStart ? sendWindow('update-available', '') : clearInterval(checkForUpdate);
+        appStart === false ? sendWindow('update-available', '') : clearInterval(checkForUpdate);
     });
     autoUpdater.on('update-not-available', () => {
         sendWindow('update-not-available', '');
@@ -265,8 +265,7 @@ try {
             speed: d.bytesPerSecond,
             percent: d.percent,
             transferred: d.transferred,
-            total: d.total,
-            inBack: appStart
+            total: d.total
         });
         mainWindow.setProgressBar(d.percent / 100);
     });
@@ -275,6 +274,7 @@ try {
             sendWindow('update-downloaded', 'Update downloaded');
             autoUpdater.quitAndInstall();
         } else if (appStart === true) {
+            clearInterval(checkForUpdate);
             sendWindow('askForUpdate', '');
             ipcMain.on('responseForUpdate', (e, response) => {
                 if (response === true) autoUpdater.quitAndInstall();
