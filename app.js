@@ -234,7 +234,7 @@ try {
             rpc.destroy();
             rpc = null;
         }
-        if (checkForUpdate !== null) clearInterval(checkForUpdate);
+        clearInterval(checkForUpdate);
         mainWindow.removeAllListeners('close');
         mainWindow.close();
     });
@@ -255,9 +255,11 @@ try {
         appStart === false ? sendWindow('update-available', '') : clearInterval(checkForUpdate);
     });
     autoUpdater.on('update-not-available', () => {
-        sendWindow('update-not-available', '');
-        appStart = true;
-        checkForUpdate = setInterval(async () => await autoUpdater.checkForUpdates(),3e5);
+        if(appStart === false) {
+            sendWindow('update-not-available', '');
+            appStart = true;
+            checkForUpdate = setInterval(async () => await autoUpdater.checkForUpdatesAndNotify(), 3e5);
+        }
     });
     autoUpdater.on('error', (err) => sendWindow('error', 'Error: ' + err));
     autoUpdater.on('download-progress', (d) => {
@@ -265,11 +267,13 @@ try {
             speed: d.bytesPerSecond,
             percent: d.percent,
             transferred: d.transferred,
-            total: d.total
+            total: d.total,
+            inBack: appStart
         });
         mainWindow.setProgressBar(d.percent / 100);
     });
     autoUpdater.on('update-downloaded', () => {
+        mainWindow.setProgressBar(0);
         if (appStart === false) {
             sendWindow('update-downloaded', 'Update downloaded');
             autoUpdater.quitAndInstall();

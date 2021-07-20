@@ -111,6 +111,10 @@
     });
     ipcRenderer.on("download-progress", (event, data) => {
         progression.innerHTML = Math.round(data['percent']) + "%";
+        if (data['inBack'] === true && updateCount === 0) {
+            iframe.notify('Une mise à jour de l\'application est en cours de téléchargement en arrière-plan...');
+            updateCount = 1;
+        }
     });
     ipcRenderer.on("askForUpdate", () => {
         if (iframe.location.pathname.replace('.php', '') !== '/hotel') {
