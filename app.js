@@ -10,7 +10,7 @@ try {
 
 
     const DiscordRPC = require('discord-rpc');
-    const DiscordUpdate = path.join(__dirname, '/discord/discord.js');//require(path.join(process.resourcesPath, './discord/discord.js'));
+    const DiscordUpdate = require(path.join(process.resourcesPath, './discord/discord.js'));
     const clientId = '798873369315377163';
     DiscordRPC.register(clientId);
     let rpc = null;

@@ -118,12 +118,12 @@
     });
     ipcRenderer.on("askForUpdate", () => {
         if (iframe.location.pathname.replace('.php', '') !== '/hotel') {
-            openAlert('Mise à jour', 'Une mise à jour de l\'application est disponible !', ['Plus tard', 'Installer'], false, "responseForUpdate", true);
+            openAlert('Mise à jour', 'Une mise à jour est prête à être installée ! <br><br><i>(Si vous choisissez <b>"Plus tard"</b> la mise à jour sera installée à la <b>fermeture de l\'application ou à sa prochaine ouverture</b>.)</i>', ['Plus tard', 'Fermer et installer'], false, "responseForUpdate", true);
         } else {
             const updateHotel = setInterval(() => {
                 if (iframe.location.pathname.replace('.php', '') !== '/hotel') {
-                    openAlert('Mise à jour', 'Une mise à jour de l\'application est disponible !', ['Plus tard', 'Installer'], false, "responseForUpdate", true);
                     clearInterval(updateHotel);
+                    openAlert('Mise à jour', 'Une mise à jour est prête à être installée ! <br><br><i>(Si vous choisissez <b>"Plus tard"</b> la mise à jour sera installée à la <b>fermeture de l\'application ou à sa prochaine ouverture</b>.)</i>', ['Plus tard', 'Fermer et installer'], false, "responseForUpdate", true);
                 }
             }, 15e3);
         }
