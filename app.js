@@ -8,8 +8,9 @@ try {
     let pluginName;
     let mainWindow;
 
+
     const DiscordRPC = require('discord-rpc');
-    const DiscordUpdate = require(path.join(process.resourcesPath, './discord/discord.js'));
+    const DiscordUpdate = path.join(__dirname, '/discord/discord.js');//require(path.join(process.resourcesPath, './discord/discord.js'));
     const clientId = '798873369315377163';
     DiscordRPC.register(clientId);
     let rpc = null;
@@ -74,7 +75,7 @@ try {
 
         mainWindow.on('focus', () => mainWindow.flashFrame(false));
 
-        ///mainWindow.webContents.openDevTools();
+        //mainWindow.webContents.openDevTools();
 
         await mainWindow.loadURL(url.format({
             pathname: path.join(__dirname, `app.html`),
@@ -109,7 +110,7 @@ try {
             mainWindow.setOverlayIcon(null, '');
             if (parseInt(data) < 10) {
                 badge = path.join(__dirname, `/assets/images/badge-${data}.ico`);
-                if(parseInt(data) === 0) badge = null;
+                if (parseInt(data) === 0) badge = null;
             } else {
                 badge = path.join(__dirname, `/assets/images/badge-10.ico`);
             }
@@ -227,7 +228,6 @@ try {
             app.quit();
         }
     });
-
     app.on('before-quit', () => {
         if (rpc !== null) {
             rpc.clearActivity();
@@ -238,7 +238,6 @@ try {
         mainWindow.removeAllListeners('close');
         mainWindow.close();
     });
-
     app.on('ready', async () => {
         await globalShortcut.register('CommandOrControl+Alt+D', () => sendWindow('shortcutDiscord', ''));
         await createWindow();
@@ -247,7 +246,6 @@ try {
     app.on('activate', async () => {
         if (mainWindow === null) await createWindow();
     });
-
     autoUpdater.on('checking-for-update', () => {
         if (appStart === false) sendWindow('checking-for-update', '');
     });
@@ -257,7 +255,7 @@ try {
     autoUpdater.on('update-not-available', () => {
         sendWindow('update-not-available', '');
         appStart = true;
-        checkForUpdate = setInterval(async () => await autoUpdater.checkForUpdates(),3e5);
+        checkForUpdate = setInterval(async () => await autoUpdater.checkForUpdates(), 3e5);
     });
     autoUpdater.on('error', (err) => sendWindow('error', 'Error: ' + err));
     autoUpdater.on('download-progress', (d) => {
