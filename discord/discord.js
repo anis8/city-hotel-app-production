@@ -14,9 +14,14 @@ module.exports = {
             details = "Hôtel";
             state = "Joue sur l'hôtel";
             if (data.elements[0] && data.elements[1]) {
-                state = 'Joue sur l\'hôtel : ' + data.elements[0];
+                state = 'Apparts : ' + data.elements[0];
                 buttonLabel = 'Rejoindre l\'appartement';
                 buttonUrl = 'https://www.habbocity.me/room/' + data.elements[1];
+                if(data.elements[0] === 'diamonds'){
+                    state = 'Diamants Booster (' + data.elements[1] + ' points)';
+                    buttonLabel = 'Rejoindre le Diamants Booster';
+                    buttonUrl = 'https://www.habbocity.me/room/1539545';
+                }
             }
         }
 
