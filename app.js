@@ -8,6 +8,7 @@ try {
     let pluginName;
     let mainWindow;
 
+
     const DiscordRPC = require('discord-rpc');
     const DiscordUpdate = require(path.join(process.resourcesPath, './discord/discord.js'));
     const clientId = '798873369315377163';
@@ -74,7 +75,7 @@ try {
 
         mainWindow.on('focus', () => mainWindow.flashFrame(false));
 
-        ///mainWindow.webContents.openDevTools();
+        //mainWindow.webContents.openDevTools();
 
         await mainWindow.loadURL(url.format({
             pathname: path.join(__dirname, `app.html`),
@@ -227,18 +228,16 @@ try {
             app.quit();
         }
     });
-
     app.on('before-quit', () => {
         if (rpc !== null) {
             rpc.clearActivity();
             rpc.destroy();
             rpc = null;
         }
-        clearInterval(checkForUpdate);
+        if (checkForUpdate !== null) clearInterval(checkForUpdate);
         mainWindow.removeAllListeners('close');
         mainWindow.close();
     });
-
     app.on('ready', async () => {
         await globalShortcut.register('CommandOrControl+Alt+D', () => sendWindow('shortcutDiscord', ''));
         await createWindow();
@@ -247,19 +246,16 @@ try {
     app.on('activate', async () => {
         if (mainWindow === null) await createWindow();
     });
-
     autoUpdater.on('checking-for-update', () => {
         if (appStart === false) sendWindow('checking-for-update', '');
     });
     autoUpdater.on('update-available', () => {
-        appStart === false ? sendWindow('update-available', '') : clearInterval(checkForUpdate);
+        appStart ? sendWindow('update-available', '') : clearInterval(checkForUpdate);
     });
     autoUpdater.on('update-not-available', () => {
-        if(appStart === false) {
-            sendWindow('update-not-available', '');
-            appStart = true;
-            checkForUpdate = setInterval(async () => await autoUpdater.checkForUpdatesAndNotify(), 3e5);
-        }
+        sendWindow('update-not-available', '');
+        appStart = true;
+        checkForUpdate = setInterval(async () => await autoUpdater.checkForUpdates(), 3e5);
     });
     autoUpdater.on('error', (err) => sendWindow('error', 'Error: ' + err));
     autoUpdater.on('download-progress', (d) => {
@@ -273,12 +269,10 @@ try {
         mainWindow.setProgressBar(d.percent / 100);
     });
     autoUpdater.on('update-downloaded', () => {
-        mainWindow.setProgressBar(0);
         if (appStart === false) {
             sendWindow('update-downloaded', 'Update downloaded');
             autoUpdater.quitAndInstall();
         } else if (appStart === true) {
-            clearInterval(checkForUpdate);
             sendWindow('askForUpdate', '');
             ipcMain.on('responseForUpdate', (e, response) => {
                 if (response === true) autoUpdater.quitAndInstall();
