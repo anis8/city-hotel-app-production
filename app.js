@@ -109,10 +109,10 @@ try {
             let badge;
             mainWindow.setOverlayIcon(null, '');
             if (parseInt(data) < 10) {
-                badge = path.join(__dirname, `/assets/images/badge-${data}.ico`);
-                if (parseInt(data) === 0) badge = null;
+                badge = path.join(__dirname, `/assets/images/badges/badge-${data}.ico`);
+                if(parseInt(data) === 0) badge = null;
             } else {
-                badge = path.join(__dirname, `/assets/images/badge-10.ico`);
+                badge = path.join(__dirname, `/assets/images/badges/badge-10.ico`);
             }
             mainWindow.setOverlayIcon(badge, `${data} notification(s)`);
         });

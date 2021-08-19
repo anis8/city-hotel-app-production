@@ -212,14 +212,16 @@
 
     let checkRpc;
     let statRpc = false;
-    function discordRpc() {
+    function discordRpc(toogle = false) {
         if (iframe) {
-            if (statRpc === false) {
-                statRpc = true;
-                checkRpc = setInterval(discordRpc, 15e3);
-            } else if (statRpc === true) {
-                clearInterval(checkRpc);
-                statRpc = false;
+            if(toogle === true) {
+                if (statRpc === false) {
+                    statRpc = true;
+                    checkRpc = setInterval(discordRpc, 15e3);
+                } else if (statRpc === true) {
+                    clearInterval(checkRpc);
+                    statRpc = false;
+                }
             }
 
             let iframeData = {
@@ -237,9 +239,9 @@
 
     ipcRenderer.on('shortcutDiscord', () => {
         if(statRpc === false) {
-            openAlert("Attention...", "Tu souhaites activer la Rich Presence Discord. <br/><br/><i>(Tu devras activer l'option : <b>\"Affiche l'activité en cours en tant que message de statut.\"</b> dans tes paramètres Discord dans : <b>\"Statut d'activité\"</b>.)</i>", [], false, "toggleRpc", '', "discordRpc();")
+            openAlert("Attention...", "Tu souhaites activer la Rich Presence Discord. <br/><br/><i>(Tu devras activer l'option : <b>\"Affiche l'activité en cours en tant que message de statut.\"</b> dans tes paramètres Discord dans : <b>\"Statut d'activité\"</b>.)</i>", [], false, "toggleRpc", '', "discordRpc(true);")
         } else if(statRpc === true) {
-            openAlert("Attention...", "Tu souhaites désactiver la Rich Presence Discord.", [], false, "toggleRpc", '', "discordRpc();")
+            openAlert("Attention...", "Tu souhaites désactiver la Rich Presence Discord.", [], false, "toggleRpc", '', "discordRpc(true);")
         }
     });
 
@@ -257,7 +259,6 @@
     function numberNotif() {
         const totalNotif = mentionNb + alertNb + chatNb;
         if(totalNotif !== 0) {
-            ipcRenderer.send('flashFrame', '');
             ipcRenderer.send('notifIcon', `${totalNotif}`);
         } else {
             ipcRenderer.send('notifIcon', '0');
