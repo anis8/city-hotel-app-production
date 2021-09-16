@@ -29,8 +29,8 @@
 </div>
 <div id="updater" class="updater">
     <div class="body">
-        <div class="connection">
-            connexion en cours
+        <div id="connexion" class="connection">
+            Connexion en cours
         </div>
         <div id="progression" class="progression">
             ...
@@ -89,12 +89,19 @@
             Recharger la page
         </div>
     </div>
+    <div id="notif" class="button">
+        <div id="notif-btn" class="icon all"></div>
+        <div id="notif-txt" class="tooltip">
+            Toutes les notifications
+        </div>
+    </div>
 </div>
 <div id="messages"></div>
 <script src="../discord/iframeData.js" type="text/javascript"></script>
 <script>
     let ipcRenderer = window.ipcRenderer;
     let updater = document.getElementById("updater");
+    let connexion = document.getElementById('connexion');
     let progression = document.getElementById("progression");
     let version = document.getElementById("version");
     let iframe = document.getElementById("frame").contentWindow;
@@ -102,7 +109,7 @@
 
     ipcRenderer.on("version", (event, data) => version.innerHTML = data);
     ipcRenderer.on("checking-for-update", (event, data) => {
-        progression.innerHTML = "mise à jour...";
+        connexion.innerText = "Recherche de mise à jour";
         updater.style.display = "block";
     });
     ipcRenderer.on("update-not-available", (event, data) => {
@@ -110,7 +117,8 @@
         updater.innerHTML = "";
     });
     ipcRenderer.on("download-progress", (event, data) => {
-        progression.innerHTML = Math.round(data['percent']) + "%";
+        connexion.innerText = 'Téléchargement en cours...';
+        progression.innerText = Math.round(data['percent']) + '%';
         if (data['inBack'] === true && updateCount === 0) {
             iframe.notify('Une mise à jour de l\'application est en cours de téléchargement en arrière-plan...');
             updateCount = 1;
@@ -134,6 +142,7 @@
     let zoomReset = document.getElementById("zoomReset");
     let zoomOut = document.getElementById("zoomOut");
     let reload = document.getElementById("reload");
+    let notifClick = document.getElementById('notif');
     let close = document.getElementById("close");
     let cache = document.getElementById("cache");
     let alert = document.getElementById("alert");
@@ -193,6 +202,7 @@
         iframe.location.reload();
         fullScreenInterval = setInterval(fullScreenFunction, 1e3);
     });
+    notifClick.addEventListener('click', () => switchNotif());
     close.addEventListener('click', () => {
         if (!isOpenButtons) {
             isOpenButtons = true;
@@ -212,15 +222,17 @@
 
     let checkRpc;
     let statRpc = false;
-    function discordRpc(toogle = false) {
+    function discordRpc(toggle = false) {
         if (iframe) {
-            if(toogle === true) {
+            if(toggle === true) {
                 if (statRpc === false) {
                     statRpc = true;
                     checkRpc = setInterval(discordRpc, 15e3);
+                    localStorage.setItem('discordRPC', 'true');
                 } else if (statRpc === true) {
-                    clearInterval(checkRpc);
                     statRpc = false;
+                    clearInterval(checkRpc);
+                    localStorage.removeItem('discordRPC');
                 }
             }
 
@@ -230,18 +242,25 @@
                 elements: []
             };
 
-            updateIframeData(iframeData, iframe, updater.style.display);
+            updateIframeData(iframeData, iframe, [updater.style.display, progression.innerText]);
 
             ipcRenderer.send('updateRpc', iframeData);
             iframeData = {};
         }
     }
 
+    ipcRenderer.on('checkDiscordItem', () => {
+        if(localStorage.getItem('discordRPC')) {
+            ipcRenderer.send('toggleRpc', '');
+            discordRpc(true);
+        }
+    });
+
     ipcRenderer.on('shortcutDiscord', () => {
         if(statRpc === false) {
-            openAlert("Attention...", "Tu souhaites activer la Rich Presence Discord. <br/><br/><i>(Tu devras activer l'option : <b>\"Affiche l'activité en cours en tant que message de statut.\"</b> dans tes paramètres Discord dans : <b>\"Statut d'activité\"</b>.)</i>", [], false, "toggleRpc", '', "discordRpc(true);")
+            openAlert("Attention...", "Tu souhaites activer la Rich Presence Discord. <br/><br/><i>(Tu devras activer l'option : <b>\"Affiche l'activité en cours en tant que message de statut.\"</b> dans tes paramètres Discord dans : <b>\"Statut d'activité\"</b>.)</i>", [], false, 'toggleRpc', '', "discordRpc(true);");
         } else if(statRpc === true) {
-            openAlert("Attention...", "Tu souhaites désactiver la Rich Presence Discord.", [], false, "toggleRpc", '', "discordRpc(true);")
+            openAlert("Attention...", "Tu souhaites désactiver la Rich Presence Discord.", [], false, 'toggleRpc', '', 'discordRpc(true);');
         }
     });
 
@@ -255,7 +274,40 @@
         }
     }, 3e3);
 
+    let notif = !localStorage.getItem('notif') ? 1 : parseInt(localStorage.getItem('notif'));
     let mentionNb = 0, alertNb = 0, chatNb = 0;
+    switchNotif(false);
+
+    function switchNotif(add = true) {
+        const notifBtn = document.getElementById('notif-btn');
+        const notifTxt = document.getElementById('notif-txt');
+        const oldClass = notifBtn.classList[1];
+        if(notif && parseInt(notif)) {
+            if (notif < 4) {
+                if(add === true) notif++;
+                if(notif === 1) {
+                    notifBtn.classList.replace(oldClass, 'all');
+                    notifTxt.innerText = 'Toutes les notifications';
+                } else if (notif === 2) {
+                    notifBtn.classList.replace(oldClass, 'mentions');
+                    notifTxt.innerText = 'Mentions seulement';
+                } else if(notif === 3) {
+                    notifBtn.classList.replace(oldClass, 'alerts');
+                    notifTxt.innerText = 'Alertes seulement';
+                } else if (notif === 4) {
+                    notifBtn.classList.replace(oldClass, 'nothing');
+                    notifTxt.innerText = 'Aucune notification';
+                }
+            } else if (notif === 4) {
+                if(add === true) notif = 1;
+                notifBtn.classList.replace(oldClass, 'all');
+                notifTxt.innerText = 'Toutes les notifications';
+            }
+
+            localStorage.setItem('notif', notif);
+        }
+    }
+
     function numberNotif() {
         const totalNotif = mentionNb + alertNb + chatNb;
         if(totalNotif !== 0) {
@@ -266,26 +318,38 @@
     }
 
     setInterval(() => {
-        if (iframe.document.getElementById('hotelframe')) {
-            const mentions = iframe.document.getElementById('hotelframe').contentWindow.document.querySelectorAll('.notifelement');
-            if (mentions) mentionNb = mentions.length;
+        if(notif && parseInt(notif)) {
+            if (iframe.document.getElementById('hotelframe')) {
+                if(notif === 1 || notif === 2) {
+                    const mentions = iframe.document.getElementById('hotelframe').contentWindow.document.querySelectorAll('.notifelement');
+                    if (mentions) mentionNb = mentions.length;
+                }
+                if(notif === 1 || notif === 3) {
+                    const alerts = iframe.document.getElementById('hotelframe').contentWindow.document.querySelectorAll('#hotel13');
+                    if (alerts) alertNb = alerts.length;
+                }
+                if(notif === 2) alertNb = 0;
+                if(notif === 3 ) mentionNb = 0;
+            }
 
-            const alerts = iframe.document.getElementById('hotelframe').contentWindow.document.querySelectorAll('#hotel13');
-            if (alerts) alertNb = alerts.length;
-        }
-
-        const liveChat = iframe.document.querySelector('[data-s="launcher"]');
-        if (liveChat) {
-            const liveChatNotif = iframe.document.querySelector('[data-s="launcher-notifications"]');
-            if (liveChatNotif && liveChatNotif.innerText !== '') {
-                chatNb = parseInt(liveChatNotif.innerText);
+            const liveChat = iframe.document.querySelector('[data-s="launcher"]');
+            if (liveChat) {
+                const liveChatNotif = iframe.document.querySelector('[data-s="launcher-notifications"]');
+                if (liveChatNotif && liveChatNotif.innerText !== '') {
+                    chatNb = parseInt(liveChatNotif.innerText);
+                } else {
+                    chatNb = 0;
+                }
             } else {
                 chatNb = 0;
             }
-        } else {
-            chatNb = 0;
+
+            if(notif === 4) {
+                mentionNb = 0;
+                alertNb = 0;
+            }
+            numberNotif();
         }
-        numberNotif();
     }, 1e3);
 </script>
 </body>

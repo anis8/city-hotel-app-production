@@ -168,7 +168,8 @@ function updateIframeData(iframeData, iframe, updater) {
         if (iframe.document.getElementById('ai5')) iframeData.elements.push(iframe.document.getElementById('ai5').innerText);
     }
 
-    if (updater !== 'none') {
+    if (updater[0] !== 'none' && updater[1]) {
         iframeData.update = true;
+        iframeData.progression = updater[1];
     }
 }

@@ -105,6 +105,22 @@
     background: url('../images/reset.png');
 }
 
+.buttons .button .all {
+    background: url('../images/all.png');
+}
+
+.buttons .button .mentions {
+    background: url('../images/mentions.png');
+}
+
+.buttons .button .alerts {
+    background: url('../images/alerts.png');
+}
+
+.buttons .button .nothing {
+    background: url('../images/nothing.png');
+}
+
 .buttons .button:hover {
     background: #00000073;
 }
