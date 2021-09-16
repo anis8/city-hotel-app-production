@@ -408,7 +408,7 @@ module.exports = {
         }
 
         if (data.update && data.update === true) {
-            details = "Mise à jour...";
+            details = "Mise à jour... (" + data.progression + ")";
             state = "Version : " + version;
         }
 
