@@ -255,6 +255,7 @@ try {
     autoUpdater.on('update-not-available', () => {
         if(appStart === false) {
             sendWindow('update-not-available', '');
+            sendWindow('checkDiscordItem', '');
             appStart = true;
             checkForUpdate = setInterval(async () => await autoUpdater.checkForUpdatesAndNotify(), 3e5);
         }
