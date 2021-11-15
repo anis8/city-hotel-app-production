@@ -60,7 +60,7 @@
       "uninstallerIcon": "icon.ico",
       "uninstallDisplayName": "HabboCity",
       "oneClick": false,
-      "perMachine": true,
+      "perMachine": false,
       "allowToChangeInstallationDirectory": false,
       "artifactName": "City-${version}.${ext}",
       "include": "build/installer.nsh"
