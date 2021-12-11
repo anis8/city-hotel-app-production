@@ -239,6 +239,7 @@ try {
     });
     app.on('ready', async () => {
         await globalShortcut.register('CommandOrControl+Alt+D', () => sendWindow('shortcutDiscord', ''));
+        await globalShortcut.register('F11', () => mainWindow.isFullScreen() ? mainWindow.setFullScreen(false) : mainWindow.setFullScreen(true));
         await createWindow();
         await autoUpdater.checkForUpdatesAndNotify();
     });
