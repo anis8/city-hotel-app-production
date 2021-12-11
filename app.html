@@ -253,6 +253,7 @@
         if(localStorage.getItem('discordRPC')) {
             ipcRenderer.send('toggleRpc', '');
             discordRpc(true);
+            iframe.notify('La Rich Presence Discord est automatiquement activée au démarrage. Pour la désactiver maintiens : CTRL + ALT + D.');
         }
     });
 
