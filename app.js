@@ -166,7 +166,7 @@ try {
                                 },
                                 {
                                     label: 'Rejoindre CityCom',
-                                    url: 'https://discord.gg/cityfamily'
+                                    url: 'https://www.habbocity.me/discord'
                                 }
                             ]
                         }
@@ -238,8 +238,8 @@ try {
         mainWindow.close();
     });
     app.on('ready', async () => {
-        await globalShortcut.register('CommandOrControl+Alt+D', () => sendWindow('shortcutDiscord', ''));
-        await globalShortcut.register('F11', () => mainWindow.isFullScreen() ? mainWindow.setFullScreen(false) : mainWindow.setFullScreen(true));
+        globalShortcut.register('CommandOrControl+Alt+D', () => sendWindow('shortcutDiscord', ''));
+        globalShortcut.register('F11', () => mainWindow.isFullScreen() ? mainWindow.setFullScreen(false) : mainWindow.setFullScreen(true));
         await createWindow();
         await autoUpdater.checkForUpdatesAndNotify();
     });
