@@ -309,12 +309,13 @@
         }
     }
 
+    let nbNotif = 0;
+
     function numberNotif() {
         const totalNotif = mentionNb + alertNb + chatNb;
-        if(totalNotif !== 0) {
+        if(nbNotif !== totalNotif) {
             ipcRenderer.send('notifIcon', `${totalNotif}`);
-        } else {
-            ipcRenderer.send('notifIcon', '0');
+            nbNotif = totalNotif;
         }
     }
 
@@ -330,7 +331,7 @@
                     if (alerts) alertNb = alerts.length;
                 }
                 if(notif === 2) alertNb = 0;
-                if(notif === 3 ) mentionNb = 0;
+                if(notif === 3) mentionNb = 0;
             }
 
             const liveChat = iframe.document.querySelector('[data-s="launcher"]');
