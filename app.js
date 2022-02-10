@@ -208,7 +208,7 @@ try {
                             },
                             {
                                 label: 'Rejoindre CityCom',
-                                url: 'https://discord.gg/cityfamily'
+                                url: 'https://www.habbocity.me/discord'
                             }
                         ]
                     }
