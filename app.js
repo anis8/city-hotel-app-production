@@ -1,7 +1,7 @@
 const {app, nativeImage, BrowserWindow, ipcMain, globalShortcut} = require('electron');
 try {
     const {autoUpdater} = require('electron-updater');
-
+    const contextMenu = require('electron-context-menu');
     const path = require('path');
     const url = require('url');
 
@@ -13,6 +13,51 @@ try {
     const clientId = '798873369315377163';
     DiscordRPC.register(clientId);
     let rpc = null;
+
+    contextMenu({
+        prepend: (defaultActions, parameters, browserWindow) => [
+            {
+                label: 'Recharger la page (F5)',
+                visible: true,
+                icon: path.join(__dirname, `/assets/images/reload.png`),
+                click: () => sendWindow('reload', '')
+            },
+            {
+                label: 'Rejoindre CityCom',
+                visible: true,
+                icon: path.join(__dirname, `/assets/images/discord.png`),
+                click: () => require('electron').shell.openExternal('https://discord.com/invite/citycom')
+            },
+            {
+                label: 'Plein écran (F11)',
+                visible: true,
+                icon: path.join(__dirname, `/assets/images/screen.png`),
+                click: () => mainWindow.isFullScreen() ? mainWindow.setFullScreen(false) : mainWindow.setFullScreen(true)
+            },
+            {
+                type: 'separator',
+                visible: parameters.mediaType === 'image',
+            },
+            {
+                label: 'Ouvrir l\'image dans un nouvel onglet (Navigateur par défaut)',
+                visible: parameters.mediaType === 'image',
+                click: () => require('electron').shell.openExternal(`${parameters.srcURL}`)
+            }
+        ],
+        labels: {
+            copy: 'Copier',
+            paste: 'Coller',
+            cut: 'Couper',
+            searchWithGoogle: 'Rechercher "{selection}" avec Google',
+            learnSpelling: 'Enregistrer "{selection}" dans le dictionnaire',
+            saveImageAs: 'Enregistrer l\'image sous',
+            copyImage: 'Copier l\'image',
+            copyImageAddress: 'Copier l\'adresse de l\'image',
+            copyLink: 'Copier l\'adresse du lien'
+        },
+        showCopyImageAddress: true,
+        showSaveImageAs: true
+    });
 
     switch (process.platform) {
         case 'win32':
@@ -60,7 +105,8 @@ try {
                 nodeIntegration: false,
                 contextIsolation: false,
                 webSecurity: false,
-                preload: path.join(__dirname, './preload.js')
+                preload: path.join(__dirname, './preload.js'),
+                spellcheck: true
             },
             show: false,
             frame: true,
@@ -71,8 +117,6 @@ try {
         mainWindow.show();
         mainWindow.setMenu(null);
         mainWindow.on('closed', () => mainWindow = null);
-
-        mainWindow.on('focus', () => mainWindow.flashFrame(false));
 
         ///mainWindow.webContents.openDevTools();
 
@@ -129,7 +173,7 @@ try {
 
             if (checkUrl !== 'habbocity' || url === 'https://www.habbocity.me/discord') {
                 e.preventDefault();
-                if (url === 'https://www.habbocity.me/discord') url = 'https://discord.com/invite/CityFamily';
+                if (url === 'https://www.habbocity.me/discord') url = 'https://discord.com/invite/citycom';
                 require('electron').shell.openExternal(url);
             }
         });
@@ -166,7 +210,7 @@ try {
                                 },
                                 {
                                     label: 'Rejoindre CityCom',
-                                    url: 'https://www.habbocity.me/discord'
+                                    url: 'https://discord.com/invite/citycom'
                                 }
                             ]
                         }
@@ -179,7 +223,7 @@ try {
                 rpc.clearActivity();
                 rpc.destroy();
                 rpc = null;
-            }
+            }        
         });
 
         ipcMain.on('updateRpc', (event, data) => {
@@ -208,7 +252,7 @@ try {
                             },
                             {
                                 label: 'Rejoindre CityCom',
-                                url: 'https://discord.gg/cityfamily'
+                                url: 'https://discord.com/invite/citycom'
                             }
                         ]
                     }
@@ -240,6 +284,7 @@ try {
     app.on('ready', async () => {
         globalShortcut.register('CommandOrControl+Alt+D', () => sendWindow('shortcutDiscord', ''));
         globalShortcut.register('F11', () => mainWindow.isFullScreen() ? mainWindow.setFullScreen(false) : mainWindow.setFullScreen(true));
+        globalShortcut.register('F5', () => sendWindow('reload', ''));
         await createWindow();
         await autoUpdater.checkForUpdatesAndNotify();
     });
@@ -263,12 +308,23 @@ try {
     });
     autoUpdater.on('error', (err) => sendWindow('error', 'Error: ' + err));
     autoUpdater.on('download-progress', (d) => {
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+        
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+        
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
         mainWindow.setProgressBar(0);
         sendWindow('download-progress', {
-            speed: d.bytesPerSecond,
+            speed: formatBytes(d.bytesPerSecond),
             percent: d.percent,
-            transferred: d.transferred,
-            total: d.total,
+            transferred: formatBytes(d.transferred),
+            total: formatBytes(d.total),
             inBack: appStart
         });
         mainWindow.setProgressBar(d.percent / 100);

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>HabboCity</title>
     <link rel="stylesheet" type="text/css" href="assets/styles/app.css">
@@ -7,46 +8,47 @@
     <link rel="stylesheet" type="text/css" href="assets/styles/buttons.css">
     <link rel="stylesheet" type="text/css" href="assets/styles/alert.css">
 </head>
+
 <body>
-<div id="alert" class="alert">
-    <div class="box">
-        <form id="form">
-            <div id="title" class="title">Attention...</div>
-            <div id="description" class="description">Tu souhaites vider ton cache et relancer l'application.</div>
-            <input type="text" id="input" placeholder="Mon texte..."/>
-            <div class="btns">
-                <div id="cancel" class="button" style="float:left;background: #ed1c24;">
-                    <div class="alpha"></div>
-                    Annuler
+    <div id="alert" class="alert">
+        <div class="box">
+            <form id="form">
+                <div id="title" class="title">Attention...</div>
+                <div id="description" class="description">Tu souhaites vider ton cache et relancer l'application.</div>
+                <input type="text" id="input" placeholder="Mon texte..." />
+                <div class="btns">
+                    <div id="cancel" class="button" style="float:left;background: #ed1c24;">
+                        <div class="alpha"></div>
+                        Annuler
+                    </div>
+                    <button id="confirm" style="font-family: 'Ubuntu', sans-serif;" class="button" type="submit">
+                        <div class="alpha"></div>
+                        Confirmer
+                    </button>
                 </div>
-                <button id="confirm" style="font-family: 'Ubuntu', sans-serif;" class="button" type="submit">
-                    <div class="alpha"></div>
-                    Confirmer
-                </button>
+            </form>
+        </div>
+    </div>
+    <div id="updater" class="updater">
+        <div class="body">
+            <div id="connexion" class="connection">
+                Connexion en cours
             </div>
-        </form>
-    </div>
-</div>
-<div id="updater" class="updater">
-    <div class="body">
-        <div id="connexion" class="connection">
-            Connexion en cours
+            <div id="progression" class="progression">
+                ...
+            </div>
+            <div class="duck"></div>
+            <div class="loader"></div>
         </div>
-        <div id="progression" class="progression">
-            ...
+        <div class="logo"></div>
+        <div id="version" class="version">...</div>
+    </div>
+    <iframe id="frame" width="100%" src="https://www.habbocity.me/profil"></iframe>
+    <div class="buttons">
+        <div id="close">
+            <div id="close-button" style="transform: scaleX(-1);"></div>
         </div>
-        <div class="duck"></div>
-        <div class="loader"></div>
-    </div>
-    <div class="logo"></div>
-    <div id="version" class="version">...</div>
-</div>
-<iframe id="frame" width="100%" src="https://www.habbocity.me/profil"></iframe>
-<div class="buttons">
-    <div id="close">
-        <div id="close-button" style="transform: scaleX(-1);"></div>
-    </div>
-    <!--
+        <!--
     <div id="screen" class="button">
         <div class="icon screen"></div>
         <div class="tooltip">
@@ -55,304 +57,344 @@
         </div>
     </div>
     -->
-    <div id="cache" class="button">
-        <div class="icon cache"></div>
-        <div class="tooltip">
-            <div class="arrow"></div>
-            Vider le cache
+        <div id="cache" class="button">
+            <div class="icon cache"></div>
+            <div class="tooltip">
+                <div class="arrow"></div>
+                Vider le cache
+            </div>
+        </div>
+        <div id="zoomOut" class="button">
+            <div class="icon out"></div>
+            <div class="tooltip">
+                <div class="arrow"></div>
+                Zoom -1%
+            </div>
+        </div>
+        <div id="zoomReset" class="button">
+            <div class="icon reset"></div>
+            <div class="tooltip">
+                <div class="arrow"></div>
+                Réinitialiser le Zoom
+            </div>
+        </div>
+        <div id="zoomIn" class="button">
+            <div class="icon in"></div>
+            <div class="tooltip">
+                <div class="arrow"></div>
+                Zoom +1%
+            </div>
+        </div>
+        <div id="reload" class="button">
+            <div class="icon reload"></div>
+            <div class="tooltip">
+                Recharger la page
+            </div>
+        </div>
+        <div id="notif" class="button">
+            <div id="notif-btn" class="icon all"></div>
+            <div id="notif-txt" class="tooltip">
+                Toutes les notifications
+            </div>
         </div>
     </div>
-    <div id="zoomOut" class="button">
-        <div class="icon out"></div>
-        <div class="tooltip">
-            <div class="arrow"></div>
-            Zoom -1%
-        </div>
-    </div>
-    <div id="zoomReset" class="button">
-        <div class="icon reset"></div>
-        <div class="tooltip">
-            <div class="arrow"></div>
-            Réinitialiser le Zoom
-        </div>
-    </div>
-    <div id="zoomIn" class="button">
-        <div class="icon in"></div>
-        <div class="tooltip">
-            <div class="arrow"></div>
-            Zoom +1%
-        </div>
-    </div>
-    <div id="reload" class="button">
-        <div class="icon reload"></div>
-        <div class="tooltip">
-            Recharger la page
-        </div>
-    </div>
-    <div id="notif" class="button">
-        <div id="notif-btn" class="icon all"></div>
-        <div id="notif-txt" class="tooltip">
-            Toutes les notifications
-        </div>
-    </div>
-</div>
-<div id="messages"></div>
-<script src="../discord/iframeData.js" type="text/javascript"></script>
-<script>
-    let ipcRenderer = window.ipcRenderer;
-    let updater = document.getElementById("updater");
-    let connexion = document.getElementById('connexion');
-    let progression = document.getElementById("progression");
-    let version = document.getElementById("version");
-    let iframe = document.getElementById("frame").contentWindow;
-    let updateCount = 0;
+    <div id="messages"></div>
+    <script src="../discord/iframeData.js" type="text/javascript"></script>
+    <script>
+        let ipcRenderer = window.ipcRenderer;
+        let updater = document.getElementById("updater");
+        let connexion = document.getElementById('connexion');
+        let progression = document.getElementById("progression");
+        let version = document.getElementById("version");
+        let iframe = document.getElementById("frame").contentWindow;
+        let updateCount = 0;
 
-    ipcRenderer.on("version", (event, data) => version.innerHTML = data);
-    ipcRenderer.on("checking-for-update", (event, data) => {
-        connexion.innerText = "Recherche de mise à jour";
-        updater.style.display = "block";
-    });
-    ipcRenderer.on("update-not-available", (event, data) => {
-        updater.style.display = "none";
-        updater.innerHTML = "";
-    });
-    ipcRenderer.on("download-progress", (event, data) => {
-        connexion.innerText = 'Téléchargement en cours...';
-        progression.innerText = Math.round(data['percent']) + '%';
-        if (data['inBack'] === true && updateCount === 0) {
-            iframe.notify('Une mise à jour de l\'application est en cours de téléchargement en arrière-plan...');
-            updateCount = 1;
-        }
-    });
-    ipcRenderer.on("askForUpdate", () => {
-        if (iframe.location.pathname.replace('.php', '') !== '/hotel') {
-            openAlert('Mise à jour', 'Une mise à jour est prête à être installée ! <br><br><i>(Si vous choisissez <b>"Plus tard"</b> la mise à jour sera installée à la <b>fermeture de l\'application ou à sa prochaine ouverture</b>.)</i>', ['Plus tard', 'Fermer et installer'], false, "responseForUpdate", true);
-        } else {
-            const updateHotel = setInterval(() => {
-                if (iframe.location.pathname.replace('.php', '') !== '/hotel') {
-                    clearInterval(updateHotel);
-                    openAlert('Mise à jour', 'Une mise à jour est prête à être installée ! <br><br><i>(Si vous choisissez <b>"Plus tard"</b> la mise à jour sera installée à la <b>fermeture de l\'application ou à sa prochaine ouverture</b>.)</i>', ['Plus tard', 'Fermer et installer'], false, "responseForUpdate", true);
+        ipcRenderer.on("version", (event, data) => version.innerHTML = data);
+        ipcRenderer.on("checking-for-update", (event, data) => {
+            connexion.innerText = "Recherche de mise à jour";
+            updater.style.display = "block";
+        });
+        ipcRenderer.on("update-not-available", (event, data) => {
+            updater.style.display = "none";
+            updater.innerHTML = "";
+        });
+        ipcRenderer.on("download-progress", (event, data) => {
+            connexion.innerText = 'Téléchargement en cours...';
+            progression.innerHTML =
+                `${Math.round(data['percent'])}%<br/><span class="proportion">[<b>${data['transferred']}</b> / <b>${data['total']}</b>]</span><span class="speed">${data['speed']}/s</span>`;
+            if (data['inBack'] === true && updateCount === 0) {
+                iframe.notify(
+                    'Une mise à jour de l\'application est en cours de téléchargement en arrière-plan...');
+                updateCount = 1;
+            }
+        });
+        ipcRenderer.on("askForUpdate", () => {
+            if (iframe.location.pathname.replace('.php', '') !== '/hotel') {
+                openAlert('Mise à jour',
+                    'Une mise à jour est prête à être installée ! <br><br><i>(Si vous choisissez <b>"Plus tard"</b> la mise à jour sera installée à la <b>fermeture de l\'application ou à sa prochaine ouverture</b>.)</i>',
+                    ['Plus tard', 'Fermer et installer'], false, "responseForUpdate", true);
+            } else {
+                const updateHotel = setInterval(() => {
+                    if (iframe.location.pathname.replace('.php', '') !== '/hotel') {
+                        clearInterval(updateHotel);
+                        openAlert('Mise à jour',
+                            'Une mise à jour est prête à être installée ! <br><br><i>(Si vous choisissez <b>"Plus tard"</b> la mise à jour sera installée à la <b>fermeture de l\'application ou à sa prochaine ouverture</b>.)</i>',
+                            ['Plus tard', 'Fermer et installer'], false, "responseForUpdate", true);
+                    }
+                }, 15e3);
+            }
+        });
+        ipcRenderer.on('reload', () => {
+            iframe.location.reload();
+            fullScreenInterval = setInterval(() => {
+                if (iframe.location.href === 'https://www.habbocity.me/hotel' && iframe.document
+                    .getElementById('hotel1')) {
+                    iframe.document.getElementById('hotel1').addEventListener('click',
+                        fullScreenFunction);
+                    clearInterval(fullScreenInterval);
+                    fullScreenInterval = null;
                 }
-            }, 15e3);
+            }, 1e3);
+        });
+
+        let isOpenButtons = true;
+        let zoomIn = document.getElementById("zoomIn");
+        let zoomReset = document.getElementById("zoomReset");
+        let zoomOut = document.getElementById("zoomOut");
+        let reload = document.getElementById("reload");
+        let notifClick = document.getElementById('notif');
+        let close = document.getElementById("close");
+        let cache = document.getElementById("cache");
+        let alert = document.getElementById("alert");
+        let cancel = document.getElementById("cancel");
+        let confirm = document.getElementById("confirm");
+        let form = document.getElementById('form');
+        let input = document.getElementById('input');
+        let fullScreenFunction = () => ipcRenderer.send("fullscreen", "");
+        let fullScreenInterval = setInterval(() => {
+            if (iframe.location.href === 'https://www.habbocity.me/hotel' && iframe.document.getElementById(
+                    'hotel1')) {
+                iframe.document.getElementById('hotel1').addEventListener('click', fullScreenFunction);
+                clearInterval(fullScreenInterval);
+                fullScreenInterval = null;
+            }
+        }, 1e3);
+
+        let openAlert = (t, d, btns, i, ipc, ipcArgs, next) => {
+            let title = document.getElementById("title");
+            let description = document.getElementById("description");
+            alert.style.visibility = "visible";
+            title.innerText = t;
+            description.innerHTML = d;
+            input.value = '';
+
+            if (btns.length !== 0) {
+                cancel.innerHTML = '<div class="alpha"></div>' + btns[0];
+                confirm.innerHTML = '<div class="alpha"></div>' + btns[1];
+            } else {
+                cancel.innerHTML = '<div class="alpha"></div>Annuler';
+                confirm.innerHTML = '<div class="alpha"></div>Confirmer';
+            }
+
+            if (i === true) {
+                input.style.visibility = "visible";
+            } else {
+                input.style.visibility = "hidden";
+            }
+
+            if (ipc) {
+                confirm.setAttribute('onClick', 'ipcRenderer.send("' + ipc + '", ' + ipcArgs + ');\n');
+                if (next) {
+                    confirm.setAttribute('onClick', 'ipcRenderer.send("' + ipc + '", ' + ipcArgs + ');' + next +
+                        '\n');
+                }
+            }
         }
-    });
 
-    let isOpenButtons = true;
-    let zoomIn = document.getElementById("zoomIn");
-    let zoomReset = document.getElementById("zoomReset");
-    let zoomOut = document.getElementById("zoomOut");
-    let reload = document.getElementById("reload");
-    let notifClick = document.getElementById('notif');
-    let close = document.getElementById("close");
-    let cache = document.getElementById("cache");
-    let alert = document.getElementById("alert");
-    let cancel = document.getElementById("cancel");
-    let confirm = document.getElementById("confirm");
-    let form = document.getElementById('form');
-    let input = document.getElementById('input');
-
-    let fullScreenFunction = () => {
-        if (iframe.location.href === 'https://www.habbocity.me/hotel' && iframe.document.getElementById('hotel1')) {
-            iframe.document.getElementById('hotel1').addEventListener('click', () => ipcRenderer.send("fullscreen", ""));
-            clearInterval(fullScreenInterval);
-        }
-    };
-    let fullScreenInterval = setInterval(fullScreenFunction, 1e3);
-
-    let openAlert = (t, d, btns, i, ipc, ipcArgs, next) => {
-        let title = document.getElementById("title");
-        let description = document.getElementById("description");
-        alert.style.visibility = "visible";
-        title.innerText = t;
-        description.innerHTML = d;
-        input.value = '';
-
-        if (btns.length !== 0) {
-            cancel.innerHTML = '<div class="alpha"></div>' + btns[0];
-            confirm.innerHTML = '<div class="alpha"></div>' + btns[1];
-        } else {
-            cancel.innerHTML = '<div class="alpha"></div>Annuler';
-            confirm.innerHTML = '<div class="alpha"></div>Confirmer';
-        }
-
-        if (i === true) {
-            input.style.visibility = "visible";
-        } else {
+        let closeAlert = () => {
+            alert.style.visibility = "hidden";
             input.style.visibility = "hidden";
         }
 
-        if (ipc) {
-            confirm.setAttribute('onClick', 'ipcRenderer.send("' + ipc + '", ' + ipcArgs + ');\n');
-            if (next) {
-                confirm.setAttribute('onClick', 'ipcRenderer.send("' + ipc + '", ' + ipcArgs + ');' + next + '\n');
+        form.addEventListener('submit', (e) => e.preventDefault());
+        zoomIn.addEventListener('click', () => ipcRenderer.send("zoomIn", ""));
+        zoomReset.addEventListener('click', () => ipcRenderer.send("zoomReset", ""));
+        zoomOut.addEventListener('click', () => ipcRenderer.send("zoomOut", ""));
+        reload.addEventListener('click', () => {
+            iframe.location.reload();
+            fullScreenInterval = setInterval(() => {
+                if (iframe.location.href === 'https://www.habbocity.me/hotel' && iframe.document
+                    .getElementById('hotel1')) {
+                    iframe.document.getElementById('hotel1').addEventListener('click',
+                        fullScreenFunction);
+                    clearInterval(fullScreenInterval);
+                    fullScreenInterval = null;
+                }
+            }, 1e3);
+        });
+        notifClick.addEventListener('click', () => switchNotif());
+        close.addEventListener('click', () => {
+            if (!isOpenButtons) {
+                isOpenButtons = true;
+                document.querySelector('.buttons').style.maxWidth = "50px";
+                document.getElementById('close-button').style.transform = "scaleX(-1)";
+            } else {
+                isOpenButtons = false;
+                document.querySelector('.buttons').style.maxWidth = "0px";
+                document.getElementById('close-button').style.transform = "none";
+            }
+        });
+        cache.addEventListener('click', () =>
+            openAlert("Attention...", "Tu souhaites vider ton cache et relancer l'application.", [], false,
+                "clearcache")
+        );
+        cancel.addEventListener('click', () => closeAlert());
+        confirm.addEventListener('click', () => closeAlert());
+
+        let checkRpc;
+        let statRpc = false;
+
+        function discordRpc(toggle = false) {
+            if (iframe) {
+                if (toggle === true) {
+                    if (statRpc === false) {
+                        statRpc = true;
+                        checkRpc = setInterval(discordRpc, 15e3);
+                        localStorage.setItem('discordRPC', 'true');
+                    } else if (statRpc === true) {
+                        statRpc = false;
+                        clearInterval(checkRpc);
+                        localStorage.removeItem('discordRPC');
+                    }
+                }
+
+                let iframeData = {
+                    pathname: iframe.location.pathname.replace('.php', ''),
+                    title: iframe.document.title,
+                    elements: []
+                };
+
+                updateIframeData(iframeData, iframe, [updater.style.display, progression.innerText]);
+
+                ipcRenderer.send('updateRpc', iframeData);
+                iframeData = {};
             }
         }
-    }
 
-    let closeAlert = () => {
-        alert.style.visibility = "hidden";
-        input.style.visibility = "hidden";
-    }
+        ipcRenderer.on('checkDiscordItem', () => {
+            if (localStorage.getItem('discordRPC')) {
+                ipcRenderer.send('toggleRpc', '');
+                discordRpc(true);
+                iframe.notify(
+                    'La Rich Presence Discord est automatiquement activée au démarrage. Pour la désactiver maintiens : CTRL + ALT + D.'
+                );
+            }
+        });
 
-    form.addEventListener('submit', (e) => e.preventDefault());
-    zoomIn.addEventListener('click', () => ipcRenderer.send("zoomIn", ""));
-    zoomReset.addEventListener('click', () => ipcRenderer.send("zoomReset", ""));
-    zoomOut.addEventListener('click', () => ipcRenderer.send("zoomOut", ""));
-    reload.addEventListener('click', () => {
-        iframe.location.reload();
-        fullScreenInterval = setInterval(fullScreenFunction, 1e3);
-    });
-    notifClick.addEventListener('click', () => switchNotif());
-    close.addEventListener('click', () => {
-        if (!isOpenButtons) {
-            isOpenButtons = true;
-            document.querySelector('.buttons').style.maxWidth = "50px";
-            document.getElementById('close-button').style.transform = "scaleX(-1)";
-        } else {
-            isOpenButtons = false;
-            document.querySelector('.buttons').style.maxWidth = "0px";
-            document.getElementById('close-button').style.transform = "none";
-        }
-    });
-    cache.addEventListener('click', () =>
-        openAlert("Attention...", "Tu souhaites vider ton cache et relancer l'application.", [], false, "clearcache")
-    );
-    cancel.addEventListener('click', () => closeAlert());
-    confirm.addEventListener('click', () => closeAlert());
+        ipcRenderer.on('shortcutDiscord', () => {
+            if (statRpc === false) {
+                openAlert("Attention...",
+                    "Tu souhaites activer la Rich Presence Discord. <br/><br/><i>(Tu devras activer l'option : <b>\"Affiche l'activité en cours en tant que message de statut.\"</b> dans tes paramètres Discord dans : <b>\"Statut d'activité\"</b>.)</i>",
+                    [], false, 'toggleRpc', '', "discordRpc(true);");
+            } else if (statRpc === true) {
+                openAlert("Attention...", "Tu souhaites désactiver la Rich Presence Discord.", [], false,
+                    'toggleRpc', '', 'discordRpc(true);');
+            }
+        });
 
-    let checkRpc;
-    let statRpc = false;
-    function discordRpc(toggle = false) {
-        if (iframe) {
-            if(toggle === true) {
-                if (statRpc === false) {
-                    statRpc = true;
-                    checkRpc = setInterval(discordRpc, 15e3);
-                    localStorage.setItem('discordRPC', 'true');
-                } else if (statRpc === true) {
-                    statRpc = false;
-                    clearInterval(checkRpc);
-                    localStorage.removeItem('discordRPC');
+        let lastHref = "";
+        setInterval(() => {
+            if (typeof iframe.saveUniqueId !== "undefined") {
+                if (lastHref !== iframe.window.location.href) {
+                    iframe.saveUniqueId(window.uniqueId);
+                    lastHref = iframe.window.location.href;
                 }
             }
+        }, 3e3);
 
-            let iframeData = {
-                pathname: iframe.location.pathname.replace('.php', ''),
-                title: iframe.document.title,
-                elements: []
-            };
+        let notif = !localStorage.getItem('notif') ? 1 : parseInt(localStorage.getItem('notif'));
+        let mentionNb = 0,
+            alertNb = 0,
+            chatNb = 0;
+        switchNotif(false);
 
-            updateIframeData(iframeData, iframe, [updater.style.display, progression.innerText]);
-
-            ipcRenderer.send('updateRpc', iframeData);
-            iframeData = {};
-        }
-    }
-
-    ipcRenderer.on('checkDiscordItem', () => {
-        if(localStorage.getItem('discordRPC')) {
-            ipcRenderer.send('toggleRpc', '');
-            discordRpc(true);
-            iframe.notify('La Rich Presence Discord est automatiquement activée au démarrage. Pour la désactiver maintiens : CTRL + ALT + D.');
-        }
-    });
-
-    ipcRenderer.on('shortcutDiscord', () => {
-        if(statRpc === false) {
-            openAlert("Attention...", "Tu souhaites activer la Rich Presence Discord. <br/><br/><i>(Tu devras activer l'option : <b>\"Affiche l'activité en cours en tant que message de statut.\"</b> dans tes paramètres Discord dans : <b>\"Statut d'activité\"</b>.)</i>", [], false, 'toggleRpc', '', "discordRpc(true);");
-        } else if(statRpc === true) {
-            openAlert("Attention...", "Tu souhaites désactiver la Rich Presence Discord.", [], false, 'toggleRpc', '', 'discordRpc(true);');
-        }
-    });
-
-    let lastHref = "";
-    setInterval(() => {
-        if (typeof iframe.saveUniqueId !== "undefined") {
-            if (lastHref !== iframe.window.location.href) {
-                iframe.saveUniqueId(window.uniqueId);
-                lastHref = iframe.window.location.href;
-            }
-        }
-    }, 3e3);
-
-    let notif = !localStorage.getItem('notif') ? 1 : parseInt(localStorage.getItem('notif'));
-    let mentionNb = 0, alertNb = 0, chatNb = 0;
-    switchNotif(false);
-
-    function switchNotif(add = true) {
-        const notifBtn = document.getElementById('notif-btn');
-        const notifTxt = document.getElementById('notif-txt');
-        const oldClass = notifBtn.classList[1];
-        if(notif && parseInt(notif)) {
-            if (notif < 4) {
-                if(add === true) notif++;
-                if(notif === 1) {
+        function switchNotif(add = true) {
+            const notifBtn = document.getElementById('notif-btn');
+            const notifTxt = document.getElementById('notif-txt');
+            const oldClass = notifBtn.classList[1];
+            if (notif && parseInt(notif)) {
+                if (notif < 4) {
+                    if (add === true) notif++;
+                    if (notif === 1) {
+                        notifBtn.classList.replace(oldClass, 'all');
+                        notifTxt.innerText = 'Toutes les notifications';
+                    } else if (notif === 2) {
+                        notifBtn.classList.replace(oldClass, 'mentions');
+                        notifTxt.innerText = 'Mentions seulement';
+                    } else if (notif === 3) {
+                        notifBtn.classList.replace(oldClass, 'alerts');
+                        notifTxt.innerText = 'Alertes seulement';
+                    } else if (notif === 4) {
+                        notifBtn.classList.replace(oldClass, 'nothing');
+                        notifTxt.innerText = 'Aucune notification';
+                    }
+                } else if (notif === 4) {
+                    if (add === true) notif = 1;
                     notifBtn.classList.replace(oldClass, 'all');
                     notifTxt.innerText = 'Toutes les notifications';
-                } else if (notif === 2) {
-                    notifBtn.classList.replace(oldClass, 'mentions');
-                    notifTxt.innerText = 'Mentions seulement';
-                } else if(notif === 3) {
-                    notifBtn.classList.replace(oldClass, 'alerts');
-                    notifTxt.innerText = 'Alertes seulement';
-                } else if (notif === 4) {
-                    notifBtn.classList.replace(oldClass, 'nothing');
-                    notifTxt.innerText = 'Aucune notification';
                 }
-            } else if (notif === 4) {
-                if(add === true) notif = 1;
-                notifBtn.classList.replace(oldClass, 'all');
-                notifTxt.innerText = 'Toutes les notifications';
+
+                localStorage.setItem('notif', notif);
             }
-
-            localStorage.setItem('notif', notif);
         }
-    }
 
-    let nbNotif = 0;
+        let nbNotif = 0;
 
-    function numberNotif() {
-        const totalNotif = mentionNb + alertNb + chatNb;
-        if(nbNotif !== totalNotif) {
-            ipcRenderer.send('notifIcon', `${totalNotif}`);
-            nbNotif = totalNotif;
-        }
-    }
-
-    setInterval(() => {
-        if(notif && parseInt(notif)) {
-            if (iframe.document.getElementById('hotelframe')) {
-                if(notif === 1 || notif === 2) {
-                    const mentions = iframe.document.getElementById('hotelframe').contentWindow.document.querySelectorAll('.notifelement');
-                    if (mentions) mentionNb = mentions.length;
-                }
-                if(notif === 1 || notif === 3) {
-                    const alerts = iframe.document.getElementById('hotelframe').contentWindow.document.querySelectorAll('#hotel13');
-                    if (alerts) alertNb = alerts.length;
-                }
-                if(notif === 2) alertNb = 0;
-                if(notif === 3) mentionNb = 0;
+        function numberNotif() {
+            const totalNotif = mentionNb + alertNb + chatNb;
+            if (nbNotif !== totalNotif) {
+                ipcRenderer.send('notifIcon', `${totalNotif}`);
+                nbNotif = totalNotif;
             }
+        }
 
-            const liveChat = iframe.document.querySelector('[data-s="launcher"]');
-            if (liveChat) {
-                const liveChatNotif = iframe.document.querySelector('[data-s="launcher-notifications"]');
-                if (liveChatNotif && liveChatNotif.innerText !== '') {
-                    chatNb = parseInt(liveChatNotif.innerText);
+        setInterval(() => {
+            if (notif && parseInt(notif)) {
+                if (iframe.document.getElementById('hotelframe')) {
+                    if (notif === 1 || notif === 2) {
+                        const mentions = iframe.document.getElementById('hotelframe').contentWindow.document
+                            .querySelectorAll('.notifelement');
+                        if (mentions) mentionNb = mentions.length;
+                    }
+                    if (notif === 1 || notif === 3) {
+                        const alerts = iframe.document.getElementById('hotelframe').contentWindow.document
+                            .querySelectorAll('#hotel13');
+                        if (alerts) alertNb = alerts.length;
+                    }
+                    if (notif === 2) alertNb = 0;
+                    if (notif === 3) mentionNb = 0;
+                }
+
+                const liveChat = iframe.document.querySelector('[data-s="launcher"]');
+                if (liveChat) {
+                    const liveChatNotif = iframe.document.querySelector('[data-s="launcher-notifications"]');
+                    if (liveChatNotif && liveChatNotif.innerText !== '') {
+                        chatNb = parseInt(liveChatNotif.innerText);
+                    } else {
+                        chatNb = 0;
+                    }
                 } else {
                     chatNb = 0;
                 }
-            } else {
-                chatNb = 0;
-            }
 
-            if(notif === 4) {
-                mentionNb = 0;
-                alertNb = 0;
+                if (notif === 4) {
+                    mentionNb = 0;
+                    alertNb = 0;
+                }
+                numberNotif();
             }
-            numberNotif();
-        }
-    }, 1e3);
-</script>
+        }, 1e3);
+    </script>
 </body>
+
 </html>

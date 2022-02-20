@@ -26,11 +26,14 @@
 }
 
 .updater .body {
-    position: relative;
+    position: absolute;
     margin: auto;
     width: 400px;
     height: 310px;
-    top: calc(50% - 220px);
+    top: 50%;
+    left:50%;
+    text-shadow: 0 3px 0 rgba(0, 0, 0, .25);
+    transform: translate(-50%, -90%)
 }
 
 .updater .body .connection {
@@ -45,14 +48,36 @@
     font-size: 50px;
 }
 
+.updater .body .progression .proportion {
+    font-size: 30px;
+    margin-top: 10px;
+    background: #8c69e9;
+    display: block;
+    border-radius: 12px 12px 0 0;
+    padding:10px 0;
+    border: 2px solid #fff;
+}
+
+.updater .body .progression .speed {
+    font-weight: bold;
+    font-size: 20px;
+    display: block;
+    background: #8c69e9;
+    border-radius: 0 0 12px 12px;
+    border: 2px solid #fff;
+    padding: 5px 0;
+    border-top: none;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, .25);
+}
+
 .updater .body .duck {
     background: url('../images/duck.png');
     opacity: 0.8;
     width: 280px;
     height: 230px;
     margin: auto;
+    image-rendering: pixelated;
 }
-
 
 .updater .body .loader,
 .updater .body .loader:after {
