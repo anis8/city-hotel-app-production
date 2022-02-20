@@ -1,6 +1,6 @@
 {
   "name": "city",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "productName": "HabboCity",
   "main": "app.js",
   "description": "HabboCity: Créez votre avatar, décorez votre appartement ! Tchattez avec vos amis.",
@@ -22,8 +22,9 @@
     "electron-notarize": "^1.0.0"
   },
   "dependencies": {
-    "electron-updater": "4.3.5",
     "discord-rpc": "^3.1.4",
+    "electron-context-menu": "^3.1.2",
+    "electron-updater": "4.3.5",
     "node-machine-id": "^1.1.12"
   },
   "build": {
