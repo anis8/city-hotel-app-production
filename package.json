@@ -15,6 +15,7 @@
     "buildWin": "electron-builder --win"
   },
   "devDependencies": {
+    "discord-rpc": "^4.0.1",
     "dotenv": "^16.0.0",
     "electron": "^18.1.0",
     "electron-builder": "^23.0.3",
