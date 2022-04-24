@@ -4,60 +4,15 @@ try {
     const contextMenu = require('electron-context-menu');
     const path = require('path');
     const url = require('url');
+    const DiscordRPC = require('discord-rpc');
+    const DiscordUpdate = require(path.join(process.resourcesPath, './discord/discord.js'));
 
     let pluginName;
     let mainWindow;
 
-    const DiscordRPC = require('discord-rpc');
-    const DiscordUpdate = require(path.join(process.resourcesPath, './discord/discord.js'));
     const clientId = '798873369315377163';
     DiscordRPC.register(clientId);
     let rpc = null;
-
-    contextMenu({
-        prepend: (defaultActions, parameters, browserWindow) => [
-            {
-                label: 'Recharger la page (F5)',
-                visible: true,
-                icon: path.join(__dirname, `/assets/images/reload.png`),
-                click: () => sendWindow('reload', '')
-            },
-            {
-                label: 'Rejoindre CityCom',
-                visible: true,
-                icon: path.join(__dirname, `/assets/images/discord.png`),
-                click: () => require('electron').shell.openExternal('https://discord.com/invite/citycom')
-            },
-            {
-                label: 'Plein écran (F11)',
-                visible: true,
-                icon: path.join(__dirname, `/assets/images/screen.png`),
-                click: () => mainWindow.isFullScreen() ? mainWindow.setFullScreen(false) : mainWindow.setFullScreen(true)
-            },
-            {
-                type: 'separator',
-                visible: parameters.mediaType === 'image',
-            },
-            {
-                label: 'Ouvrir l\'image dans un nouvel onglet (Navigateur par défaut)',
-                visible: parameters.mediaType === 'image',
-                click: () => require('electron').shell.openExternal(`${parameters.srcURL}`)
-            }
-        ],
-        labels: {
-            copy: 'Copier',
-            paste: 'Coller',
-            cut: 'Couper',
-            searchWithGoogle: 'Rechercher "{selection}" avec Google',
-            learnSpelling: 'Enregistrer "{selection}" dans le dictionnaire',
-            saveImageAs: 'Enregistrer l\'image sous',
-            copyImage: 'Copier l\'image',
-            copyImageAddress: 'Copier l\'adresse de l\'image',
-            copyLink: 'Copier l\'adresse du lien'
-        },
-        showCopyImageAddress: true,
-        showSaveImageAs: true
-    });
 
     switch (process.platform) {
         case 'win32':
@@ -110,8 +65,14 @@ try {
             },
             show: false,
             frame: true,
-            backgroundColor: "#000",
+            backgroundColor: "#9569f3"
         });
+
+        await mainWindow.loadURL(url.format({
+            pathname: path.join(__dirname, `app.html`),
+            protocol: 'file:',
+            slashes: true
+        }));
 
         mainWindow.maximize();
         mainWindow.show();
@@ -120,11 +81,51 @@ try {
 
         ///mainWindow.webContents.openDevTools();
 
-        await mainWindow.loadURL(url.format({
-            pathname: path.join(__dirname, `app.html`),
-            protocol: 'file:',
-            slashes: true
-        }));
+        contextMenu({
+            window: mainWindow,
+            prepend: (defaultActions, parameters, browserWindow) => [
+                {
+                    label: 'Recharger la page (F5)',
+                    visible: true,
+                    icon: path.join(__dirname, `/assets/images/reload.png`),
+                    click: () => sendWindow('reload', '')
+                },
+                {
+                    label: 'Rejoindre CityCom',
+                    visible: true,
+                    icon: path.join(__dirname, `/assets/images/discord.png`),
+                    click: () => require('electron').shell.openExternal('https://discord.com/invite/citycom')
+                },
+                {
+                    label: 'Plein écran (F11)',
+                    visible: true,
+                    icon: path.join(__dirname, `/assets/images/screen.png`),
+                    click: () => mainWindow.isFullScreen() ? mainWindow.setFullScreen(false) : mainWindow.setFullScreen(true)
+                },
+                {
+                    type: 'separator',
+                    visible: parameters.mediaType === 'image',
+                },
+                {
+                    label: 'Ouvrir l\'image dans un nouvel onglet (Navigateur par défaut)',
+                    visible: parameters.mediaType === 'image',
+                    click: () => require('electron').shell.openExternal(`${parameters.srcURL}`)
+                }
+            ],
+            labels: {
+                copy: 'Copier',
+                paste: 'Coller',
+                cut: 'Couper',
+                searchWithGoogle: 'Rechercher "{selection}" avec Google',
+                learnSpelling: 'Enregistrer "{selection}" dans le dictionnaire',
+                saveImageAs: 'Enregistrer l\'image sous',
+                copyImage: 'Copier l\'image',
+                copyImageAddress: 'Copier l\'adresse de l\'image',
+                copyLink: 'Copier l\'adresse du lien'
+            },
+            showCopyImageAddress: true,
+            showSaveImageAs: true
+        });
 
         sendWindow("version", app.getVersion());
         ipcMain.on('clearcache', async () => {
@@ -283,8 +284,6 @@ try {
     });
     app.on('ready', async () => {
         globalShortcut.register('CommandOrControl+Alt+D', () => sendWindow('shortcutDiscord', ''));
-        globalShortcut.register('F11', () => mainWindow.isFullScreen() ? mainWindow.setFullScreen(false) : mainWindow.setFullScreen(true));
-        globalShortcut.register('F5', () => sendWindow('reload', ''));
         await createWindow();
         await autoUpdater.checkForUpdatesAndNotify();
     });

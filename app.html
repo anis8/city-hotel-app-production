@@ -7,6 +7,7 @@
     <link rel="stylesheet" type="text/css" href="assets/styles/updater.css">
     <link rel="stylesheet" type="text/css" href="assets/styles/buttons.css">
     <link rel="stylesheet" type="text/css" href="assets/styles/alert.css">
+    <meta charset="UTF-8">
 </head>
 
 <body>
@@ -144,18 +145,6 @@
                 }, 15e3);
             }
         });
-        ipcRenderer.on('reload', () => {
-            iframe.location.reload();
-            fullScreenInterval = setInterval(() => {
-                if (iframe.location.href === 'https://www.habbocity.me/hotel' && iframe.document
-                    .getElementById('hotel1')) {
-                    iframe.document.getElementById('hotel1').addEventListener('click',
-                        fullScreenFunction);
-                    clearInterval(fullScreenInterval);
-                    fullScreenInterval = null;
-                }
-            }, 1e3);
-        });
 
         let isOpenButtons = true;
         let zoomIn = document.getElementById("zoomIn");
@@ -170,7 +159,7 @@
         let confirm = document.getElementById("confirm");
         let form = document.getElementById('form');
         let input = document.getElementById('input');
-        let fullScreenFunction = () => ipcRenderer.send("fullscreen", "");
+        let fullScreenFunction = () => ipcRenderer.send('fullscreen', '');
         let fullScreenInterval = setInterval(() => {
             if (iframe.location.href === 'https://www.habbocity.me/hotel' && iframe.document.getElementById(
                     'hotel1')) {
