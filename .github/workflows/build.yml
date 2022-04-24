@@ -3,9 +3,6 @@ name: Build/release
 on: push
 
 jobs:
-  skip_build: 
-    runs-on: true
-    
   release:
     runs-on: ${{ matrix.os }}
 
