@@ -12,7 +12,7 @@
   "scripts": {
     "start": "electron .",
     "publish": "electron-builder --win -p always",
-    "build": "electron-builder --win"
+    "buildWin": "electron-builder --win"
   },
   "devDependencies": {
     "discord-rpc": "^3.1.4",
