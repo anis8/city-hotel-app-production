@@ -17,7 +17,7 @@ try {
     contextMenu({
         prepend: (defaultActions, parameters, browserWindow) => [
             {
-                label: 'Recharger la page (F5)',
+                label: 'Recharger la page',
                 visible: true,
                 icon: path.join(__dirname, `/assets/images/reload.png`),
                 click: () => sendWindow('reload', '')
@@ -29,7 +29,7 @@ try {
                 click: () => require('electron').shell.openExternal('https://discord.com/invite/citycom')
             },
             {
-                label: 'Plein écran (F11)',
+                label: 'Plein écran',
                 visible: true,
                 icon: path.join(__dirname, `/assets/images/screen.png`),
                 click: () => mainWindow.isFullScreen() ? mainWindow.setFullScreen(false) : mainWindow.setFullScreen(true)
@@ -110,7 +110,7 @@ try {
             },
             show: false,
             frame: true,
-            backgroundColor: "#000",
+            backgroundColor: "#9569f3",
         });
 
         mainWindow.maximize();
@@ -118,7 +118,7 @@ try {
         mainWindow.setMenu(null);
         mainWindow.on('closed', () => mainWindow = null);
 
-        ///mainWindow.webContents.openDevTools();
+        //mainWindow.webContents.openDevTools();
 
         await mainWindow.loadURL(url.format({
             pathname: path.join(__dirname, `app.html`),
@@ -170,11 +170,17 @@ try {
             const splitUrl = url.replace('https://', '').split('.');
             let checkUrl = splitUrl[0];
             if (url.replace('https://', '').startsWith('www.') || url.replace('https://', '').startsWith('swf.')) checkUrl = splitUrl[1];
-
-            if (checkUrl !== 'habbocity' || url === 'https://www.habbocity.me/discord') {
-                e.preventDefault();
+            e.preventDefault();
+            if (checkUrl !== 'habbocity' && url !== 'https://funados-radio.fr/dedicace/' || url === 'https://www.habbocity.me/discord') {
                 if (url === 'https://www.habbocity.me/discord') url = 'https://discord.com/invite/citycom';
                 require('electron').shell.openExternal(url);
+            } else {
+                const child = new BrowserWindow({ parent: mainWindow, show: false });
+                child.setMenu(null);
+                child.loadURL(url);
+                child.once('ready-to-show', () => {
+                    child.show();
+                });
             }
         });
 
@@ -283,8 +289,6 @@ try {
     });
     app.on('ready', async () => {
         globalShortcut.register('CommandOrControl+Alt+D', () => sendWindow('shortcutDiscord', ''));
-        globalShortcut.register('F11', () => mainWindow.isFullScreen() ? mainWindow.setFullScreen(false) : mainWindow.setFullScreen(true));
-        globalShortcut.register('F5', () => sendWindow('reload', ''));
         await createWindow();
         await autoUpdater.checkForUpdatesAndNotify();
     });
