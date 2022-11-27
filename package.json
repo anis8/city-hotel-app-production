@@ -12,19 +12,19 @@
   "scripts": {
     "start": "electron .",
     "publish": "electron-builder --win -p always",
-    "buildWin": "electron-builder --win"
+    "build": "electron-builder --win"
   },
   "devDependencies": {
-    "discord-rpc": "^4.0.1",
-    "dotenv": "^16.0.0",
-    "electron": "^18.1.0",
-    "electron-builder": "^23.0.3",
-    "electron-notarize": "^1.2.1"
+    "discord-rpc": "^3.1.4",
+    "dotenv": "^8.2.0",
+    "electron": "11.1.0",
+    "electron-builder": "22.9.1",
+    "electron-notarize": "^1.0.0"
   },
   "dependencies": {
-    "discord-rpc": "^4.0.1",
+    "discord-rpc": "^3.1.4",
     "electron-context-menu": "^3.1.2",
-    "electron-updater": "^4.3.5",
+    "electron-updater": "4.3.5",
     "node-machine-id": "^1.1.12"
   },
   "build": {

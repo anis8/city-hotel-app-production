@@ -4,15 +4,60 @@ try {
     const contextMenu = require('electron-context-menu');
     const path = require('path');
     const url = require('url');
-    const DiscordRPC = require('discord-rpc');
-    const DiscordUpdate = require(path.join(process.resourcesPath, './discord/discord.js'));
 
     let pluginName;
     let mainWindow;
 
+    const DiscordRPC = require('discord-rpc');
+    const DiscordUpdate = require(path.join(process.resourcesPath, './discord/discord.js'));
     const clientId = '798873369315377163';
     DiscordRPC.register(clientId);
     let rpc = null;
+
+    contextMenu({
+        prepend: (defaultActions, parameters, browserWindow) => [
+            {
+                label: 'Recharger la page',
+                visible: true,
+                icon: path.join(__dirname, `/assets/images/reload.png`),
+                click: () => sendWindow('reload', '')
+            },
+            {
+                label: 'Rejoindre CityCom',
+                visible: true,
+                icon: path.join(__dirname, `/assets/images/discord.png`),
+                click: () => require('electron').shell.openExternal('https://discord.com/invite/citycom')
+            },
+            {
+                label: 'Plein écran',
+                visible: true,
+                icon: path.join(__dirname, `/assets/images/screen.png`),
+                click: () => mainWindow.isFullScreen() ? mainWindow.setFullScreen(false) : mainWindow.setFullScreen(true)
+            },
+            {
+                type: 'separator',
+                visible: parameters.mediaType === 'image',
+            },
+            {
+                label: 'Ouvrir l\'image dans un nouvel onglet (Navigateur par défaut)',
+                visible: parameters.mediaType === 'image',
+                click: () => require('electron').shell.openExternal(`${parameters.srcURL}`)
+            }
+        ],
+        labels: {
+            copy: 'Copier',
+            paste: 'Coller',
+            cut: 'Couper',
+            searchWithGoogle: 'Rechercher "{selection}" avec Google',
+            learnSpelling: 'Enregistrer "{selection}" dans le dictionnaire',
+            saveImageAs: 'Enregistrer l\'image sous',
+            copyImage: 'Copier l\'image',
+            copyImageAddress: 'Copier l\'adresse de l\'image',
+            copyLink: 'Copier l\'adresse du lien'
+        },
+        showCopyImageAddress: true,
+        showSaveImageAs: true
+    });
 
     switch (process.platform) {
         case 'win32':
@@ -65,67 +110,21 @@ try {
             },
             show: false,
             frame: true,
-            backgroundColor: "#9569f3"
+            backgroundColor: "#9569f3",
         });
-
-        await mainWindow.loadURL(url.format({
-            pathname: path.join(__dirname, `app.html`),
-            protocol: 'file:',
-            slashes: true
-        }));
 
         mainWindow.maximize();
         mainWindow.show();
         mainWindow.setMenu(null);
         mainWindow.on('closed', () => mainWindow = null);
 
-        ///mainWindow.webContents.openDevTools();
+        //mainWindow.webContents.openDevTools();
 
-        contextMenu({
-            window: mainWindow,
-            prepend: (defaultActions, parameters, browserWindow) => [
-                {
-                    label: 'Recharger la page (F5)',
-                    visible: true,
-                    icon: path.join(__dirname, `/assets/images/reload.png`),
-                    click: () => sendWindow('reload', '')
-                },
-                {
-                    label: 'Rejoindre CityCom',
-                    visible: true,
-                    icon: path.join(__dirname, `/assets/images/discord.png`),
-                    click: () => require('electron').shell.openExternal('https://discord.com/invite/citycom')
-                },
-                {
-                    label: 'Plein écran (F11)',
-                    visible: true,
-                    icon: path.join(__dirname, `/assets/images/screen.png`),
-                    click: () => mainWindow.isFullScreen() ? mainWindow.setFullScreen(false) : mainWindow.setFullScreen(true)
-                },
-                {
-                    type: 'separator',
-                    visible: parameters.mediaType === 'image',
-                },
-                {
-                    label: 'Ouvrir l\'image dans un nouvel onglet (Navigateur par défaut)',
-                    visible: parameters.mediaType === 'image',
-                    click: () => require('electron').shell.openExternal(`${parameters.srcURL}`)
-                }
-            ],
-            labels: {
-                copy: 'Copier',
-                paste: 'Coller',
-                cut: 'Couper',
-                searchWithGoogle: 'Rechercher "{selection}" avec Google',
-                learnSpelling: 'Enregistrer "{selection}" dans le dictionnaire',
-                saveImageAs: 'Enregistrer l\'image sous',
-                copyImage: 'Copier l\'image',
-                copyImageAddress: 'Copier l\'adresse de l\'image',
-                copyLink: 'Copier l\'adresse du lien'
-            },
-            showCopyImageAddress: true,
-            showSaveImageAs: true
-        });
+        await mainWindow.loadURL(url.format({
+            pathname: path.join(__dirname, `app.html`),
+            protocol: 'file:',
+            slashes: true
+        }));
 
         sendWindow("version", app.getVersion());
         ipcMain.on('clearcache', async () => {
@@ -171,11 +170,17 @@ try {
             const splitUrl = url.replace('https://', '').split('.');
             let checkUrl = splitUrl[0];
             if (url.replace('https://', '').startsWith('www.') || url.replace('https://', '').startsWith('swf.')) checkUrl = splitUrl[1];
-
-            if (checkUrl !== 'habbocity' || url === 'https://www.habbocity.me/discord') {
-                e.preventDefault();
+            e.preventDefault();
+            if (checkUrl !== 'habbocity' && url !== 'https://funados-radio.fr/dedicace/' || url === 'https://www.habbocity.me/discord') {
                 if (url === 'https://www.habbocity.me/discord') url = 'https://discord.com/invite/citycom';
                 require('electron').shell.openExternal(url);
+            } else {
+                const child = new BrowserWindow({ parent: mainWindow, show: false });
+                child.setMenu(null);
+                child.loadURL(url);
+                child.once('ready-to-show', () => {
+                    child.show();
+                });
             }
         });
 
