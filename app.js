@@ -110,7 +110,7 @@ try {
             },
             show: false,
             frame: true,
-            backgroundColor: "#9569f3",
+            backgroundColor: "#9569f3"
         });
 
         mainWindow.maximize();
@@ -118,7 +118,7 @@ try {
         mainWindow.setMenu(null);
         mainWindow.on('closed', () => mainWindow = null);
 
-        //mainWindow.webContents.openDevTools();
+        mainWindow.webContents.openDevTools();
 
         await mainWindow.loadURL(url.format({
             pathname: path.join(__dirname, `app.html`),
