@@ -1,5 +1,5 @@
 .buttons {
-    z-index: 99999;
+    z-index: 9999999;
     margin-top: 20px;
     position: fixed;
     background: rgba(58, 56, 50, 0.9);
