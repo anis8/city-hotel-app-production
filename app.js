@@ -113,12 +113,16 @@ try {
             backgroundColor: "#9569f3"
         });
 
+        mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+            callback({ responseHeaders: Object.fromEntries(Object.entries(details.responseHeaders).filter(header => !/x-frame-options/i.test(header[0]))) });
+        });
+
         mainWindow.maximize();
         mainWindow.show();
         mainWindow.setMenu(null);
         mainWindow.on('closed', () => mainWindow = null);
 
-        mainWindow.webContents.openDevTools();
+        ///mainWindow.webContents.openDevTools();
 
         await mainWindow.loadURL(url.format({
             pathname: path.join(__dirname, `app.html`),
