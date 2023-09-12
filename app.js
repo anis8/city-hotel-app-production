@@ -1,4 +1,5 @@
-const {app, nativeImage, BrowserWindow, ipcMain, globalShortcut} = require('electron');
+const {app, nativeImage, BrowserWindow, clipboard, ipcMain, globalShortcut, desktopCapturer} = require('electron');
+const path = require("path");
 try {
     const {autoUpdater} = require('electron-updater');
     const contextMenu = require('electron-context-menu');
@@ -16,6 +17,16 @@ try {
 
     contextMenu({
         prepend: (defaultActions, parameters, browserWindow) => [
+            {
+                label: 'Copier l\'adresse de la page',
+                visible: true,
+                click: () => {
+                    sendWindow('getLinkAdress', '');
+                    ipcMain.on('sendLinkAdress', (e, data) => {
+                        clipboard.writeText(data);
+                    });
+                }
+            },
             {
                 label: 'Recharger la page',
                 visible: true,
@@ -53,7 +64,8 @@ try {
             saveImageAs: 'Enregistrer l\'image sous',
             copyImage: 'Copier l\'image',
             copyImageAddress: 'Copier l\'adresse de l\'image',
-            copyLink: 'Copier l\'adresse du lien'
+            copyLink: 'Copier l\'adresse du lien',
+            selectAll: 'Sélectionner tout'
         },
         showCopyImageAddress: true,
         showSaveImageAs: true

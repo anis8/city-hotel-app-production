@@ -385,6 +385,10 @@
 				numberNotif();
 			}
 		}, 1e3);
+
+		ipcRenderer.on('getLinkAdress', () => {
+			ipcRenderer.send('sendLinkAdress', `${iframe.location.href}`);
+		});
 	</script>
 </body>
 

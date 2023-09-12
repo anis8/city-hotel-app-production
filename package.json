@@ -1,6 +1,6 @@
 {
   "name": "city",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "productName": "HabboCity",
   "main": "app.js",
   "description": "HabboCity: Créez votre avatar, décorez votre appartement ! Tchattez avec vos amis.",
